@@ -69,10 +69,23 @@ export const searchRelevantContent = async (pdfPath: string, topic: string): Pro
     const keywords = extractKeywords(topic);
     console.log(`[키워드 추출] ${keywords.join(', ')}`);
     
-    // 탈모 관련 일반 키워드도 추가 (검색 범위 확대)
-    const additionalKeywords = ['탈모', '모발', '두피', '치료', '약물', '효과', '부작용'];
+    // ✅ 탈모 및 약물 관련 광범위한 키워드 추가 (검색 성공률 대폭 향상)
+    const additionalKeywords = [
+      // 일반 탈모 키워드
+      '탈모', '모발', '두피', '치료', '약물', '효과', '부작용', '머리', '헤어',
+      // 약물명 키워드
+      '프로페시아', '피나스테리드', '피나스테라이드', 'finasteride', 'propecia',
+      '미녹시딜', '미녹시딜', 'minoxidil', 'rogaine',
+      '두타스테리드', 'dutasteride', '아보다트',
+      // 치료 관련
+      '복용', '사용', '처방', '투여', '도포', '바르',
+      // 효과 관련
+      '개선', '억제', '방지', '성장', '발모', '육모',
+      // 부작용 관련
+      '주의', '경고', '위험', '증상', '반응'
+    ];
     const allKeywords = [...new Set([...keywords, ...additionalKeywords])];
-    console.log(`[확장 키워드] ${allKeywords.join(', ')}`);
+    console.log(`[확장 키워드 ${allKeywords.length}개] ${allKeywords.slice(0, 10).join(', ')}...`);
     
     // PDF 로드
     const loadingTask = pdfjsLib.getDocument(pdfPath);
@@ -125,19 +138,37 @@ export const searchRelevantContent = async (pdfPath: string, topic: string): Pro
       }
     }
     
-    // 최소한의 내용이 없으면 전체 PDF에서 일부 추출
-    if (combinedText.length < 500 && relevantContent.length === 0) {
-      console.log('[경고] 관련 내용을 찾지 못했습니다. 전체 PDF에서 샘플 추출합니다.');
-      // 처음 3페이지 정도 추출
-      for (let pageNum = 1; pageNum <= Math.min(3, pdf.numPages); pageNum++) {
+    // ✅ 관련 내용이 없거나 부족하면 전체 PDF에서 대량 추출 (필수)
+    if (combinedText.length < 500) {
+      console.log('[대체 전략] 키워드 매칭 실패. 전체 PDF에서 최대한 추출합니다.');
+
+      // 전체 PDF의 처음 10페이지 또는 전체 페이지 중 작은 것
+      const pagesToExtract = Math.min(10, pdf.numPages);
+      console.log(`[추출 시작] 총 ${pagesToExtract}페이지 추출`);
+
+      for (let pageNum = 1; pageNum <= pagesToExtract; pageNum++) {
         const page = await pdf.getPage(pageNum);
         const textContent = await page.getTextContent();
         const pageText = textContent.items
           .map((item: any) => item.str)
           .join(' ');
-        combinedText += `[페이지 ${pageNum}]\n${pageText.substring(0, 800)}\n\n`;
-        pageNumbers.add(pageNum);
+
+        // 각 페이지에서 최대 1000자 추출
+        const extractedText = pageText.substring(0, 1000);
+        if (extractedText.trim().length > 0) {
+          combinedText += `[페이지 ${pageNum}]\n${extractedText}\n\n`;
+          pageNumbers.add(pageNum);
+          console.log(`[페이지 ${pageNum}] ${extractedText.length}자 추출`);
+        }
+
+        // 최대 길이 도달 시 중단
+        if (combinedText.length >= maxLength) {
+          console.log('[추출 완료] 최대 길이 도달');
+          break;
+        }
       }
+
+      console.log(`[대체 전략 완료] 총 ${combinedText.length}자 추출됨`);
     }
     
     const result = {
