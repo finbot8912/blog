@@ -156,9 +156,9 @@ ${additionalRequest}
 🔴🔴🔴 **절대 필수 - 반드시 읽고 따라야 합니다** 🔴🔴🔴
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### **최우선 작성 규칙**: 전문의 노윤우 원장의 의학 자료 기반 작성
+### **최우선 작성 규칙**: 맥스웰클리닉 강남점 대표원장 노윤우의 의학 자료 기반 작성
 
-당신은 지금부터 아래에 제공된 **전문의 노윤우 원장의 전문 의학 자료**를 기반으로 블로그를 작성해야 합니다.
+당신은 지금부터 아래에 제공된 **맥스웰클리닉 강남점 대표원장 노윤우의 전문 의학 자료**를 기반으로 블로그를 작성해야 합니다.
 
 **🚨 필수 준수 사항 🚨**:
 
@@ -187,7 +187,7 @@ ${additionalRequest}
    - ❌ 자료의 내용을 무시하고 일반 지식만으로 작성하지 마세요
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📚 **전문의 노윤우 원장의 전문 의학 자료** 📚
+📚 **맥스웰클리닉 강남점 대표원장 노윤우의 전문 의학 자료** 📚
 (이 내용을 반드시 읽고 블로그에 반영하세요)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -206,8 +206,8 @@ ${pdfContext}
 <div style="margin-top: 40px; padding: 20px; background-color: ${theme.colors.infoBoxBg}; border-left: 4px solid ${theme.colors.infoBoxBorder}; border-radius: 0 8px 8px 0;">
   <p style="margin: 0; font-size: 14px; color: ${theme.colors.text}; line-height: 1.6;">
     <strong>📚 참고 자료</strong><br>
-    출처: 전문의 노윤우 원장<br>
-    ${pdfPageNumbers.length > 0 ? `인용 페이지: ${pdfPageNumbers.map(pageNum => `<a href="/pdf-viewer.html?page=${pageNum}" target="_blank" style="color: #3b82f6; text-decoration: none; margin: 0 3px; font-weight: 600; border-bottom: 1px solid #3b82f6; transition: all 0.2s;">${pageNum}p</a>`).join(', ')}` : '인용 페이지: 해당 자료 참조'}
+    출처: 맥스웰클리닉 강남점 대표원장 노윤우<br>
+    ${pdfPageNumbers.length > 0 ? `참고 페이지: ${pdfPageNumbers.map(pageNum => `<a href="/pdf-viewer.html?page=${pageNum}" target="_blank" style="color: #3b82f6; text-decoration: none; margin: 0 3px; font-weight: 600; border-bottom: 1px solid #3b82f6; transition: all 0.2s;">${pageNum}p</a>`).join(', ')} | <a href="/pdf-viewer.html" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 700; border-bottom: 2px solid #10b981; margin-left: 8px;">원문 보러가기 →</a>` : '참고 페이지: 해당 자료 참조'}
   </p>
 </div>
 \`\`\`
@@ -305,7 +305,7 @@ ${pdfContext}
 🔴 CRITICAL REQUIREMENT - READ THIS FIRST 🔴
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-You have been provided with EXPERT MEDICAL REFERENCE MATERIAL from Dr. Noh Yun-woo (전문의 노윤우 원장).
+You have been provided with EXPERT MEDICAL REFERENCE MATERIAL from Dr. Noh Yun-woo (맥스웰클리닉 강남점 대표원장 노윤우).
 
 THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
 
@@ -313,13 +313,13 @@ THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
 1. You MUST base your article primarily on the medical reference material provided below
 2. For drug information (미녹시딜, 피나스테리드, etc.), use ONLY the information from the reference material
 3. You MUST include the citation box at the END of your blog post (see detailed instructions below)
-4. The citation box MUST include: "출처: 전문의 노윤우 원장" and clickable page links
+4. The citation box MUST include: "출처: 맥스웰클리닉 강남점 대표원장 노윤우" and clickable page links + "원문 보러가기" link
 5. If you generate content WITHOUT using the reference material or WITHOUT including the citation box, your response is INVALID
 
 **VERIFICATION**: After generating the blog post, verify that:
 - [ ] You used information from the reference material
 - [ ] You included the citation box at the bottom
-- [ ] The citation box has "출처: 전문의 노윤우 원장"
+- [ ] The citation box has "출처: 맥스웰클리닉 강남점 대표원장 노윤우"
 - [ ] The citation box has clickable page number links
 
 DO NOT PROCEED without following these requirements.
@@ -405,58 +405,55 @@ export const generateImage = async (prompt: string, aspectRatio: '16:9' | '1:1' 
 
 export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string): Promise<GeneratedContent> => {
   try {
-    // 탈모 관련 주제인지 확인하고 PDF 컨텍스트 추출
+    // ✅ 모든 주제에 대해 book.pdf에서 관련 정보를 우선적으로 검색
     let pdfContext: string | null = null;
     let pdfPageNumbers: number[] = [];
-    
+
     console.log('=== PDF 참조 프로세스 시작 ===');
     console.log('주제:', topic);
-    console.log('탈모 관련 여부:', isHairLossRelated(topic));
-    
-    if (isHairLossRelated(topic)) {
-      try {
-        console.log('✅ 탈모 관련 주제 감지됨! book.pdf에서 관련 정보를 검색합니다...');
-        console.log('PDF 경로: /book.pdf');
-        
-        const searchResult = await searchRelevantContent('/book.pdf', topic);
-        pdfContext = searchResult.content;
-        pdfPageNumbers = searchResult.pageNumbers;
-        
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('✅ PDF 검색 완료!');
-        console.log('📄 추출된 텍스트 길이:', pdfContext.length, '자');
-        console.log('📑 참조 페이지:', pdfPageNumbers.join(', '));
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
-        if (pdfContext && pdfContext.length > 0) {
-          console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
-          console.log('📝 내용 미리보기:', pdfContext.substring(0, 200) + '...');
-        } else {
-          console.warn('⚠️ 경고: PDF 내용이 비어있습니다!');
-          // PDF 내용이 없으면 경고만 하고 계속 진행
-        }
-      } catch (pdfError) {
-        console.error('❌ PDF 처리 중 오류 발생:', pdfError);
-        console.error('오류 상세:', pdfError instanceof Error ? pdfError.message : String(pdfError));
-        // PDF 처리 실패 시에도 일반 프로세스 진행
+    console.log('📚 book.pdf에서 관련 정보를 검색합니다...');
+    console.log('PDF 경로: /book.pdf');
+
+    try {
+      const searchResult = await searchRelevantContent('/book.pdf', topic);
+      pdfContext = searchResult.content;
+      pdfPageNumbers = searchResult.pageNumbers;
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ PDF 검색 완료!');
+      console.log('📄 추출된 텍스트 길이:', pdfContext.length, '자');
+      console.log('📑 참조 페이지:', pdfPageNumbers.join(', '));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+      if (pdfContext && pdfContext.length > 100) {
+        console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
+        console.log('📝 내용 미리보기:', pdfContext.substring(0, 300) + '...');
+        console.log('🎯 출처: 맥스웰클리닉 강남점 대표원장 노윤우');
+      } else {
+        console.warn('⚠️ 주제와 관련된 PDF 내용을 찾지 못했습니다. 일반 지식으로 생성합니다.');
+        // PDF 내용이 없어도 계속 진행 (출처 표기는 하지 않음)
         pdfContext = null;
         pdfPageNumbers = [];
       }
-    } else {
-      console.log('ℹ️ 탈모 관련 주제가 아닙니다. 일반 프로세스로 진행합니다.');
+
+    } catch (pdfError) {
+      console.error('❌ PDF 처리 중 오류 발생:', pdfError);
+      console.error('오류 상세:', pdfError instanceof Error ? pdfError.message : String(pdfError));
+      console.warn('⚠️ PDF 참조 없이 일반 프로세스로 진행합니다.');
+      // PDF 오류 발생 시에도 일반 프로세스로 계속 진행
+      pdfContext = null;
+      pdfPageNumbers = [];
     }
     
+    // 프롬프트 생성
     const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers);
     
     // 프롬프트에 PDF 내용이 포함되었는지 확인
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔍 프롬프트 분석:');
+    console.log('🔍 프롬프트 검증:');
     console.log('전체 프롬프트 길이:', prompt.length, '자');
     console.log('PDF 참조 포함 여부:', prompt.includes('노윤우') ? '✅ YES' : '❌ NO');
     console.log('출처 표기 지침 포함:', prompt.includes('참고 자료') ? '✅ YES' : '❌ NO');
-    if (pdfContext) {
-      console.log('PDF 컨텍스트 프롬프트 내 위치:', prompt.indexOf('노윤우 원장'));
-    }
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     console.log('🚀 AI에 요청 전송 중...');
