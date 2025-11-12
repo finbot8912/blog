@@ -1,7 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// PDF.js worker 설정
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// ✅ PDF.js worker 설정 - 로컬 파일 사용 (CDN 로딩 문제 해결)
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
 
 /**
  * PDF 파일의 텍스트 내용을 추출합니다.
