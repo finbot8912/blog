@@ -178,11 +178,24 @@ ${additionalRequest}
    - 자료에 나온 **구체적인 수치, 통계, 연구 결과**가 있다면 반드시 포함하세요
    - 예: "연구에 따르면 X%의 환자가..." (자료에 있는 경우)
 
-4. **출처 명시**:
-   - 본문에서 중요한 의학 정보를 언급할 때 **"[전문 자료 참고]"** 표기
+4. **PDF 자료 인용 시각적 구분 (필수)**:
+   - PDF 자료에서 직접 인용하거나 참조한 중요한 내용은 **반드시** 파랑색 배경 박스로 표시하세요
+   - 다음 HTML 형식을 사용하세요:
+   \`\`\`html
+   <div style="background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+     <p style="margin: 0; color: #1565c0; font-weight: 500;">
+       💊 전문 자료: [PDF에서 인용한 내용을 여기에 작성]
+     </p>
+   </div>
+   \`\`\`
+   - 이 박스를 **최소 3~5군데** 배치하여 PDF 내용이 실제로 사용되었음을 명확히 표시하세요
+   - 약물의 효과, 부작용, 사용법 등 중요한 정보를 설명할 때마다 이 박스를 사용하세요
+
+5. **출처 명시**:
+   - PDF 자료 인용 박스 외에도 본문에서 중요한 의학 정보를 언급할 때 **"[전문 자료 참고]"** 표기
    - 예: "미녹시딜은 혈관 확장 효과가 있습니다. [전문 자료 참고]"
 
-5. **금지사항**:
+6. **금지사항**:
    - ❌ 자료에 없는 약물 정보를 임의로 추가하지 마세요
    - ❌ 자료와 다른 의견을 제시하지 마세요
    - ❌ 자료의 내용을 무시하고 일반 지식만으로 작성하지 마세요
@@ -201,9 +214,14 @@ ${pdfContext}
 
 ### **🔴🔴🔴 절대 필수 - 출처 표기 🔴🔴🔴**
 
-⚠️ **경고**: 이 출처 표기를 누락하면 생성된 콘텐츠는 무효 처리됩니다!
+⚠️⚠️⚠️ **최종 경고**: 이 출처 표기를 누락하면 생성된 콘텐츠는 100% 거부되고 재생성을 요구받습니다! ⚠️⚠️⚠️
 
-블로그 포스트의 **가장 마지막 부분**(FAQ 섹션 다음, 마무리 인사 바로 전)에 **반드시** 아래 HTML 코드를 **정확히 그대로** 포함해야 합니다:
+**출처 표기 위치**:
+- **FAQ 섹션 바로 다음** (FAQ 끝나자마자)
+- 마무리 인사나 다른 섹션보다 **반드시 먼저**
+- 블로그 본문의 **마지막 실질 내용**
+
+블로그 포스트에 **반드시** 아래 HTML 코드를 **한 글자도 수정하지 말고 정확히 그대로** 포함해야 합니다:
 
 \`\`\`html
 <div style="margin-top: 40px; padding: 20px; background-color: ${theme.colors.infoBoxBg}; border-left: 4px solid ${theme.colors.infoBoxBorder}; border-radius: 0 8px 8px 0;">
@@ -319,20 +337,24 @@ You have been provided with EXPERT MEDICAL REFERENCE MATERIAL from Dr. Noh Yun-w
 
 THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
 
-**MANDATORY REQUIREMENTS**:
+**MANDATORY REQUIREMENTS** (FAILURE = RESPONSE REJECTED):
 1. You MUST base your article primarily on the medical reference material provided below
 2. For drug information (미녹시딜, 피나스테리드, etc.), use ONLY the information from the reference material
-3. You MUST include the citation box at the END of your blog post (see detailed instructions below)
-4. The citation box MUST include: "출처: 맥스웰클리닉 강남점 대표원장 노윤우" and clickable page links + "원문 보러가기" link
-5. If you generate content WITHOUT using the reference material or WITHOUT including the citation box, your response is INVALID
+3. You MUST include BLUE QUOTATION BOXES (minimum 3-5) highlighting content from the PDF material
+   - Use this format: <div style="background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px;">💊 전문 자료: [content]</div>
+4. You MUST include the citation box IMMEDIATELY AFTER the FAQ section (see detailed instructions below)
+5. The citation box MUST include: "출처: 맥스웰클리닉 강남점 대표원장 노윤우" and clickable page links + "원문 보러가기" link
+6. If you generate content WITHOUT blue quotation boxes or WITHOUT the citation box, your response is 100% INVALID and will be REJECTED
 
-**VERIFICATION**: After generating the blog post, verify that:
+**VERIFICATION CHECKLIST - CHECK BEFORE SUBMITTING**:
 - [ ] You used information from the reference material
-- [ ] You included the citation box at the bottom
+- [ ] You included 3-5 blue quotation boxes with PDF content
+- [ ] You included the citation box IMMEDIATELY AFTER FAQ section
 - [ ] The citation box has "출처: 맥스웰클리닉 강남점 대표원장 노윤우"
 - [ ] The citation box has clickable page number links
+- [ ] The citation box has "원문 보러가기 →" link
 
-DO NOT PROCEED without following these requirements.
+⛔ DO NOT PROCEED if any checkbox is unchecked. Your response will be REJECTED.
 `
     : '';
 
