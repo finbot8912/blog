@@ -459,13 +459,25 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
     
     // 프롬프트 생성
     const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers);
-    
+
     // 프롬프트에 PDF 내용이 포함되었는지 확인
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔍 프롬프트 검증:');
     console.log('전체 프롬프트 길이:', prompt.length, '자');
     console.log('PDF 참조 포함 여부:', prompt.includes('노윤우') ? '✅ YES' : '❌ NO');
     console.log('출처 표기 지침 포함:', prompt.includes('참고 자료') ? '✅ YES' : '❌ NO');
+    console.log('CRITICAL REQUIREMENT 포함:', prompt.includes('CRITICAL REQUIREMENT') ? '✅ YES' : '❌ NO');
+    console.log('절대 필수 포함:', prompt.includes('절대 필수') ? '✅ YES' : '❌ NO');
+
+    // PDF 컨텍스트 상세 정보
+    if (pdfContext) {
+      console.log('\n📋 PDF 컨텍스트 상세:');
+      console.log('- 길이:', pdfContext.length, '자');
+      console.log('- 페이지 번호:', pdfPageNumbers.length > 0 ? pdfPageNumbers.join(', ') : '없음');
+      console.log('- 미리보기 (처음 500자):', pdfContext.substring(0, 500));
+    } else {
+      console.log('\n⚠️ PDF 컨텍스트가 NULL입니다!');
+    }
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     console.log('🚀 AI에 요청 전송 중...');
@@ -482,6 +494,7 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
     const jsonString = contentResponse.text;
     const parsedJson = JSON.parse(jsonString);
 
+    // AI 응답 검증
     if (
         !parsedJson.blogPostHtml ||
         !parsedJson.supplementaryInfo ||
@@ -494,6 +507,28 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
     ) {
         throw new Error("Received malformed JSON response from API for content generation.");
     }
+
+    // 출처 표기 포함 여부 확인
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔍 AI 생성 결과 검증:');
+    console.log('블로그 HTML 길이:', parsedJson.blogPostHtml.length, '자');
+
+    const hasSource = parsedJson.blogPostHtml.includes('맥스웰클리닉 강남점 대표원장 노윤우');
+    const hasReference = parsedJson.blogPostHtml.includes('참고 자료');
+    const hasPdfLink = parsedJson.blogPostHtml.includes('pdf-viewer.html');
+    const hasOriginalLink = parsedJson.blogPostHtml.includes('원문 보러가기');
+
+    console.log('출처 표기 포함:', hasSource ? '✅ YES' : '❌ NO');
+    console.log('참고 자료 섹션:', hasReference ? '✅ YES' : '❌ NO');
+    console.log('PDF 링크 포함:', hasPdfLink ? '✅ YES' : '❌ NO');
+    console.log('원문 보러가기 링크:', hasOriginalLink ? '✅ YES' : '❌ NO');
+
+    if (!hasSource && pdfContext) {
+      console.error('🚨 경고: PDF 컨텍스트가 있었지만 AI가 출처를 포함하지 않았습니다!');
+      console.error('PDF 컨텍스트 길이:', pdfContext.length);
+      console.error('PDF 페이지:', pdfPageNumbers.join(', '));
+    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     let imageBase64: string | null = null;
     if (shouldGenerateImage) {
