@@ -149,7 +149,8 @@ ${additionalRequest}
     }
 
   let pdfReferenceInstructions = '';
-  if (pdfContext && pdfContext.length > 100) {
+  // ✅ PDF 내용이 조금이라도 있으면 무조건 포함 (길이 조건 완화)
+  if (pdfContext && pdfContext.trim().length > 0) {
     pdfReferenceInstructions = `
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -198,9 +199,11 @@ ${pdfContext}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-### **🔴 필수 🔴**: 출처 표기
+### **🔴🔴🔴 절대 필수 - 출처 표기 🔴🔴🔴**
 
-블로그 포스트의 **가장 마지막 부분**(FAQ 섹션 다음, 마무리 인사 전)에 반드시 아래 형식대로 출처를 표기해야 합니다:
+⚠️ **경고**: 이 출처 표기를 누락하면 생성된 콘텐츠는 무효 처리됩니다!
+
+블로그 포스트의 **가장 마지막 부분**(FAQ 섹션 다음, 마무리 인사 바로 전)에 **반드시** 아래 HTML 코드를 **정확히 그대로** 포함해야 합니다:
 
 \`\`\`html
 <div style="margin-top: 40px; padding: 20px; background-color: ${theme.colors.infoBoxBg}; border-left: 4px solid ${theme.colors.infoBoxBorder}; border-radius: 0 8px 8px 0;">
@@ -212,11 +215,18 @@ ${pdfContext}
 </div>
 \`\`\`
 
-**중요**: 
-- 각 페이지 번호는 클릭 가능한 링크로 만들어야 합니다
-- 링크는 파란색(#3b82f6)으로 표시
-- 새 탭에서 PDF의 해당 페이지로 이동
-- 출처 표기는 필수이며, 위 HTML 코드를 정확히 그대로 사용해야 합니다
+**🚨 준수사항 (위반 시 응답 무효)**:
+1. ✅ 위 HTML 코드를 **한 글자도 수정하지 말고** 그대로 복사하여 포함
+2. ✅ FAQ 섹션과 마무리 인사 사이에 정확히 위치
+3. ✅ 출처: "맥스웰클리닉 강남점 대표원장 노윤우" 문구 필수
+4. ✅ 페이지 번호는 클릭 가능한 링크 (파란색 #3b82f6)
+5. ✅ "원문 보러가기 →" 링크 포함 (녹색 #10b981)
+
+**검증 체크리스트** - 생성 후 반드시 확인:
+- [ ] 출처 표기 HTML이 블로그 끝부분에 포함되어 있는가?
+- [ ] "맥스웰클리닉 강남점 대표원장 노윤우" 문구가 있는가?
+- [ ] 페이지 번호 링크가 있는가?
+- [ ] "원문 보러가기" 링크가 있는가?
     `;
   }
 
@@ -297,8 +307,8 @@ ${pdfContext}
     ? `Your primary task is to expand the user's provided notes into a complete, high-quality blog post titled "${topic}". You MUST use the provided notes as the core foundation for the article. The notes are included in the detailed instructions below.`
     : `Your task is to generate a complete blog post on the following topic: "${topic}".`;
 
-  // PDF 참조가 있을 경우 태스크 설명 강화
-  const pdfTaskNote = pdfContext && pdfContext.length > 100
+  // PDF 참조가 있을 경우 태스크 설명 강화 (조건 완화)
+  const pdfTaskNote = pdfContext && pdfContext.trim().length > 0
     ? `
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -425,10 +435,12 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
       console.log('📑 참조 페이지:', pdfPageNumbers.join(', '));
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-      if (pdfContext && pdfContext.length > 100) {
+      // ✅ PDF 내용이 조금이라도 있으면 무조건 사용 (조건 완화)
+      if (pdfContext && pdfContext.trim().length > 0) {
         console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
         console.log('📝 내용 미리보기:', pdfContext.substring(0, 300) + '...');
         console.log('🎯 출처: 맥스웰클리닉 강남점 대표원장 노윤우');
+        console.log('📋 페이지 번호:', pdfPageNumbers.join(', '));
       } else {
         console.warn('⚠️ 주제와 관련된 PDF 내용을 찾지 못했습니다. 일반 지식으로 생성합니다.');
         // PDF 내용이 없어도 계속 진행 (출처 표기는 하지 않음)
