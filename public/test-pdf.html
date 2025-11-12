@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 로드 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-box {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 PDF 참조 기능 테스트</h1>
+    
+    <div class="test-box">
+        <h2>1. PDF 파일 접근 테스트</h2>
+        <button onclick="testPdfAccess()">PDF 파일 접근 확인</button>
+        <pre id="access-result">대기 중...</pre>
+    </div>
+
+    <div class="test-box">
+        <h2>2. PDF.js로 텍스트 추출 테스트</h2>
+        <button onclick="testPdfExtraction()">PDF 텍스트 추출</button>
+        <pre id="extract-result">대기 중...</pre>
+    </div>
+
+    <div class="test-box">
+        <h2>3. 탈모 키워드 감지 테스트</h2>
+        <input type="text" id="test-topic" value="미녹시딜 효과" style="width: 300px; padding: 8px; background: #000; color: #fff; border: 1px solid #444;">
+        <button onclick="testKeywordDetection()">키워드 감지 테스트</button>
+        <pre id="keyword-result">대기 중...</pre>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // PDF.js worker 설정
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        async function testPdfAccess() {
+            const resultEl = document.getElementById('access-result');
+            resultEl.textContent = '테스트 중...';
+            
+            try {
+                const response = await fetch('/book.pdf');
+                const data = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok,
+                    size: response.headers.get('content-length')
+                };
+                
+                if (response.ok) {
+                    resultEl.innerHTML = `<span class="success">✅ 성공!</span>\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultEl.innerHTML = `<span class="error">❌ 실패</span>\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 오류</span>\n${error.message}`;
+            }
+        }
+
+        async function testPdfExtraction() {
+            const resultEl = document.getElementById('extract-result');
+            resultEl.textContent = 'PDF 로드 중...';
+            
+            try {
+                const loadingTask = pdfjsLib.getDocument('/book.pdf');
+                const pdf = await loadingTask.promise;
+                
+                resultEl.textContent = `PDF 로드 완료! 총 ${pdf.numPages} 페이지\n\n첫 페이지 텍스트 추출 중...`;
+                
+                const page = await pdf.getPage(1);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                
+                const preview = pageText.substring(0, 500);
+                resultEl.innerHTML = `<span class="success">✅ 성공!</span>
+총 페이지: ${pdf.numPages}
+첫 페이지 텍스트 길이: ${pageText.length}자
+
+미리보기:
+${preview}...`;
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 오류</span>\n${error.message}`;
+            }
+        }
+
+        function testKeywordDetection() {
+            const topic = document.getElementById('test-topic').value;
+            const resultEl = document.getElementById('keyword-result');
+            
+            const hairLossKeywords = [
+                '탈모', '모발', '두피', '헤어', '머리카락', '모근', '모낭',
+                '대머리', '원형 탈모', '지루성 탈모', 'M자 탈모',
+                '피나스테리드', '두타스테리드', '미녹시딜', '프로페시아', '아보다트',
+                '모발 이식', '모발 건강', '두피 건강', '샴푸', '트리트먼트',
+                '발모', '육모', '앞머리', '정수리', '가르마'
+            ];
+            
+            const lowerTopic = topic.toLowerCase();
+            const matched = hairLossKeywords.filter(keyword => 
+                lowerTopic.includes(keyword.toLowerCase())
+            );
+            
+            if (matched.length > 0) {
+                resultEl.innerHTML = `<span class="success">✅ 탈모 관련 주제 감지됨!</span>
+                
+매칭된 키워드: ${matched.join(', ')}
+주제: ${topic}`;
+            } else {
+                resultEl.innerHTML = `<span class="warning">⚠️ 탈모 관련 키워드 없음</span>
+                
+주제: ${topic}
+매칭된 키워드 없음`;
+            }
+        }
+    </script>
+</body>
+</html>
+

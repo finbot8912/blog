@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전문 의학 자료 - 노윤우 원장</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .header .source {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .viewer-container {
+            height: calc(100vh - 120px);
+            background: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        #pdf-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .controls {
+            background: #2a2a2a;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        button:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #444;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .page-info {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            background: #444;
+            padding: 8px 16px;
+            border-radius: 5px;
+        }
+        .current-page {
+            color: #3b82f6;
+            font-size: 18px;
+        }
+        .zoom-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #444;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error {
+            color: #f87171;
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+        }
+        .highlight-notice {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            animation: fadeIn 0.5s, fadeOut 0.5s 3s;
+            pointer-events: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 전문 의학 자료</h1>
+        <div class="source">출처: 전문의 노윤우 원장</div>
+    </div>
+
+    <div class="viewer-container" id="viewer-container">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>PDF 로딩 중...</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prev-btn" disabled>◀ 이전 페이지</button>
+        <div class="page-info">
+            <span class="current-page" id="page-num">-</span>
+            <span> / </span>
+            <span id="page-count">-</span>
+        </div>
+        <button id="next-btn" disabled>다음 페이지 ▶</button>
+        <div class="zoom-controls">
+            <button id="zoom-out">🔍-</button>
+            <button id="zoom-in">🔍+</button>
+            <button id="zoom-reset">100%</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // PDF.js worker 설정
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.5;
+        const canvas = document.createElement('canvas');
+        canvas.id = 'pdf-canvas';
+
+        // URL에서 페이지 번호 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPage = parseInt(urlParams.get('page')) || 1;
+
+        // PDF 로드
+        const url = '/book.pdf';
+        
+        pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+            pdfDoc = pdfDoc_;
+            document.getElementById('page-count').textContent = pdfDoc.numPages;
+            
+            // 대상 페이지로 이동
+            pageNum = Math.min(Math.max(1, targetPage), pdfDoc.numPages);
+            
+            // 캔버스 추가
+            const container = document.getElementById('viewer-container');
+            container.innerHTML = '';
+            container.appendChild(canvas);
+            
+            // 페이지 하이라이트 알림
+            if (targetPage > 1) {
+                const notice = document.createElement('div');
+                notice.className = 'highlight-notice';
+                notice.innerHTML = `📍 ${targetPage}페이지로 이동했습니다`;
+                container.appendChild(notice);
+                setTimeout(() => notice.remove(), 3500);
+            }
+            
+            renderPage(pageNum);
+            updateButtons();
+        }).catch(function(error) {
+            document.getElementById('viewer-container').innerHTML = 
+                `<div class="error">❌ PDF를 로드할 수 없습니다.<br><br>${error.message}</div>`;
+        });
+
+        function renderPage(num) {
+            pageRendering = true;
+            
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({scale: scale});
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: canvas.getContext('2d'),
+                    viewport: viewport
+                };
+
+                const renderTask = page.render(renderContext);
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-num').textContent = num;
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prev-btn').disabled = (pageNum <= 1);
+            document.getElementById('next-btn').disabled = (pageNum >= pdfDoc.numPages);
+        }
+
+        document.getElementById('prev-btn').addEventListener('click', function() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+            updateButtons();
+        });
+
+        document.getElementById('next-btn').addEventListener('click', function() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+            updateButtons();
+        });
+
+        document.getElementById('zoom-in').addEventListener('click', function() {
+            scale += 0.25;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', function() {
+            if (scale <= 0.5) return;
+            scale -= 0.25;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('zoom-reset').addEventListener('click', function() {
+            scale = 1.5;
+            queueRenderPage(pageNum);
+        });
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft' && pageNum > 1) {
+                pageNum--;
+                queueRenderPage(pageNum);
+                updateButtons();
+            } else if (e.key === 'ArrowRight' && pageNum < pdfDoc.numPages) {
+                pageNum++;
+                queueRenderPage(pageNum);
+                updateButtons();
+            }
+        });
+    </script>
+</body>
+</html>
+

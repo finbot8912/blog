@@ -149,31 +149,74 @@ ${additionalRequest}
     }
 
   let pdfReferenceInstructions = '';
-  if (pdfContext) {
+  if (pdfContext && pdfContext.length > 100) {
     pdfReferenceInstructions = `
-### **최우선 중요**: 전문 자료 기반 작성
-- 아래에 제공된 전문 자료는 **노윤우 박사**의 탈모 유형 및 약물에 관한 신뢰할 수 있는 의학적 정보입니다.
-- **반드시** 이 자료의 내용을 우선적으로 참고하고 인용하여 포스트를 작성해야 합니다.
-- 약물 정보, 치료 방법, 주의사항 등은 이 자료에 기반해서 정확하게 작성하세요.
-- 자료에 없는 내용만 일반적인 지식을 활용하되, 의학적 내용은 신중하게 작성하세요.
 
-[전문 자료 내용]
----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔴🔴🔴 **절대 필수 - 반드시 읽고 따라야 합니다** 🔴🔴🔴
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### **최우선 작성 규칙**: 전문의 노윤우 원장의 의학 자료 기반 작성
+
+당신은 지금부터 아래에 제공된 **전문의 노윤우 원장의 전문 의학 자료**를 기반으로 블로그를 작성해야 합니다.
+
+**🚨 필수 준수 사항 🚨**:
+
+1. **자료 우선순위**: 
+   - 이 자료의 내용이 **당신의 일반 지식보다 절대적으로 우선**합니다
+   - 자료에 있는 내용과 다른 정보를 제공하지 마세요
+   - 자료의 표현, 용어, 수치를 **정확히 그대로** 사용하세요
+
+2. **약물 정보 작성**:
+   - 미녹시딜, 피나스테리드 등 약물의 **효과, 부작용, 복용법, 주의사항**은 
+   - **100% 이 자료에 기반**하여 작성하세요
+   - 자료에 없는 약물 정보는 추가하지 마세요
+
+3. **내용 인용 필수**:
+   - 자료의 핵심 내용을 **직접 인용**하거나 **paraphrase**하여 사용하세요
+   - 자료에 나온 **구체적인 수치, 통계, 연구 결과**가 있다면 반드시 포함하세요
+   - 예: "연구에 따르면 X%의 환자가..." (자료에 있는 경우)
+
+4. **출처 명시**:
+   - 본문에서 중요한 의학 정보를 언급할 때 **"[전문 자료 참고]"** 표기
+   - 예: "미녹시딜은 혈관 확장 효과가 있습니다. [전문 자료 참고]"
+
+5. **금지사항**:
+   - ❌ 자료에 없는 약물 정보를 임의로 추가하지 마세요
+   - ❌ 자료와 다른 의견을 제시하지 마세요
+   - ❌ 자료의 내용을 무시하고 일반 지식만으로 작성하지 마세요
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 **전문의 노윤우 원장의 전문 의학 자료** 📚
+(이 내용을 반드시 읽고 블로그에 반영하세요)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ${pdfContext}
----
 
-### **필수**: 출처 표기
-- 블로그 포스트의 **가장 마지막 부분**(마무리 인사나 Footer 바로 전)에 반드시 아래 형식으로 출처를 표기해야 합니다:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+위 자료를 우선적으로 활용하여 블로그를 작성하세요!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+### **🔴 필수 🔴**: 출처 표기
+
+블로그 포스트의 **가장 마지막 부분**(FAQ 섹션 다음, 마무리 인사 전)에 반드시 아래 형식대로 출처를 표기해야 합니다:
 
 \`\`\`html
 <div style="margin-top: 40px; padding: 20px; background-color: ${theme.colors.infoBoxBg}; border-left: 4px solid ${theme.colors.infoBoxBorder}; border-radius: 0 8px 8px 0;">
   <p style="margin: 0; font-size: 14px; color: ${theme.colors.text}; line-height: 1.6;">
     <strong>📚 참고 자료</strong><br>
-    출처: 노윤우 박사<br>
-    참조 페이지: ${pdfPageNumbers.length > 0 ? pdfPageNumbers.join(', ') + 'p' : '해당 자료 참조'}
+    출처: 전문의 노윤우 원장<br>
+    ${pdfPageNumbers.length > 0 ? `인용 페이지: ${pdfPageNumbers.map(pageNum => `<a href="/pdf-viewer.html?page=${pageNum}" target="_blank" style="color: #3b82f6; text-decoration: none; margin: 0 3px; font-weight: 600; border-bottom: 1px solid #3b82f6; transition: all 0.2s;">${pageNum}p</a>`).join(', ')}` : '인용 페이지: 해당 자료 참조'}
   </p>
 </div>
 \`\`\`
+
+**중요**: 
+- 각 페이지 번호는 클릭 가능한 링크로 만들어야 합니다
+- 링크는 파란색(#3b82f6)으로 표시
+- 새 탭에서 PDF의 해당 페이지로 이동
+- 출처 표기는 필수이며, 위 HTML 코드를 정확히 그대로 사용해야 합니다
     `;
   }
 
@@ -254,14 +297,45 @@ ${pdfContext}
     ? `Your primary task is to expand the user's provided notes into a complete, high-quality blog post titled "${topic}". You MUST use the provided notes as the core foundation for the article. The notes are included in the detailed instructions below.`
     : `Your task is to generate a complete blog post on the following topic: "${topic}".`;
 
+  // PDF 참조가 있을 경우 태스크 설명 강화
+  const pdfTaskNote = pdfContext && pdfContext.length > 100
+    ? `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔴 CRITICAL REQUIREMENT - READ THIS FIRST 🔴
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You have been provided with EXPERT MEDICAL REFERENCE MATERIAL from Dr. Noh Yun-woo (전문의 노윤우 원장).
+
+THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
+
+**MANDATORY REQUIREMENTS**:
+1. You MUST base your article primarily on the medical reference material provided below
+2. For drug information (미녹시딜, 피나스테리드, etc.), use ONLY the information from the reference material
+3. You MUST include the citation box at the END of your blog post (see detailed instructions below)
+4. The citation box MUST include: "출처: 전문의 노윤우 원장" and clickable page links
+5. If you generate content WITHOUT using the reference material or WITHOUT including the citation box, your response is INVALID
+
+**VERIFICATION**: After generating the blog post, verify that:
+- [ ] You used information from the reference material
+- [ ] You included the citation box at the bottom
+- [ ] The citation box has "출처: 전문의 노윤우 원장"
+- [ ] The citation box has clickable page number links
+
+DO NOT PROCEED without following these requirements.
+`
+    : '';
+
   return `
     You are an expert content creator and web developer specializing in creating visually stunning and SEO-optimized blog posts with inline HTML and CSS.
+    ${pdfTaskNote}
 
     ${taskDescription}
 
     You must use the "${theme.name}" color theme. Here are the specific colors to use for inline styling: ${themeColors}.
 
     Follow these comprehensive instructions for structure, content, and tone:
+    ${pdfReferenceInstructions}
     ${instructions}
 
     The final output must be a single, valid JSON object that strictly adheres to the provided response schema. The HTML code MUST be formatted for human readability. DO NOT minify the HTML. It is critical that you use proper indentation and newlines for every block-level element (\`<div>\`, \`<h2>\`, \`<p>\`, \`<ul>\`, \`<li>\`, etc.) to ensure the source code is clean and easy for a developer to read. Make sure to include the \`<!--IMAGE_PLACEHOLDER-->\` comment, which indicates where the main image will be programmatically inserted.
@@ -335,22 +409,57 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
     let pdfContext: string | null = null;
     let pdfPageNumbers: number[] = [];
     
+    console.log('=== PDF 참조 프로세스 시작 ===');
+    console.log('주제:', topic);
+    console.log('탈모 관련 여부:', isHairLossRelated(topic));
+    
     if (isHairLossRelated(topic)) {
       try {
-        console.log('탈모 관련 주제 감지됨. book.pdf에서 관련 정보를 검색합니다...');
+        console.log('✅ 탈모 관련 주제 감지됨! book.pdf에서 관련 정보를 검색합니다...');
+        console.log('PDF 경로: /book.pdf');
+        
         const searchResult = await searchRelevantContent('/book.pdf', topic);
         pdfContext = searchResult.content;
         pdfPageNumbers = searchResult.pageNumbers;
-        console.log(`PDF에서 ${pdfContext.length}자의 관련 내용을 추출했습니다. (참조 페이지: ${pdfPageNumbers.join(', ')})`);
+        
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ PDF 검색 완료!');
+        console.log('📄 추출된 텍스트 길이:', pdfContext.length, '자');
+        console.log('📑 참조 페이지:', pdfPageNumbers.join(', '));
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        if (pdfContext && pdfContext.length > 0) {
+          console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
+          console.log('📝 내용 미리보기:', pdfContext.substring(0, 200) + '...');
+        } else {
+          console.warn('⚠️ 경고: PDF 내용이 비어있습니다!');
+          // PDF 내용이 없으면 경고만 하고 계속 진행
+        }
       } catch (pdfError) {
-        console.error('PDF 처리 중 오류 발생:', pdfError);
+        console.error('❌ PDF 처리 중 오류 발생:', pdfError);
+        console.error('오류 상세:', pdfError instanceof Error ? pdfError.message : String(pdfError));
         // PDF 처리 실패 시에도 일반 프로세스 진행
         pdfContext = null;
         pdfPageNumbers = [];
       }
+    } else {
+      console.log('ℹ️ 탈모 관련 주제가 아닙니다. 일반 프로세스로 진행합니다.');
     }
     
     const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers);
+    
+    // 프롬프트에 PDF 내용이 포함되었는지 확인
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔍 프롬프트 분석:');
+    console.log('전체 프롬프트 길이:', prompt.length, '자');
+    console.log('PDF 참조 포함 여부:', prompt.includes('노윤우') ? '✅ YES' : '❌ NO');
+    console.log('출처 표기 지침 포함:', prompt.includes('참고 자료') ? '✅ YES' : '❌ NO');
+    if (pdfContext) {
+      console.log('PDF 컨텍스트 프롬프트 내 위치:', prompt.indexOf('노윤우 원장'));
+    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    console.log('🚀 AI에 요청 전송 중...');
     const contentResponse = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
@@ -359,6 +468,7 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
           responseSchema: responseSchema,
         },
     });
+    console.log('✅ AI 응답 수신 완료!');
 
     const jsonString = contentResponse.text;
     const parsedJson = JSON.parse(jsonString);

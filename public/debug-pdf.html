@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 디버그 도구</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #0f0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #0ff; border-bottom: 2px solid #0ff; padding-bottom: 10px; }
+        h2 { color: #ff0; margin-top: 30px; }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            border-radius: 5px;
+        }
+        button:hover { background: #0ff; }
+        .output {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .warning { color: #ff0; }
+        .info { color: #0ff; }
+    </style>
+</head>
+<body>
+    <h1>🔧 PDF 디버그 도구</h1>
+    
+    <h2>Step 1: PDF 파일 접근 테스트</h2>
+    <button onclick="testPdfAccess()">실행</button>
+    <div id="step1" class="output">대기 중...</div>
+
+    <h2>Step 2: PDF 전체 텍스트 추출</h2>
+    <button onclick="testPdfExtraction()">실행</button>
+    <div id="step2" class="output">대기 중...</div>
+
+    <h2>Step 3: 키워드 검색 테스트</h2>
+    <input type="text" id="search-keyword" value="미녹시딜" style="background: #000; color: #0f0; border: 2px solid #0f0; padding: 10px; width: 300px;">
+    <button onclick="testKeywordSearch()">검색</button>
+    <div id="step3" class="output">대기 중...</div>
+
+    <h2>Step 4: 완전 통합 테스트</h2>
+    <input type="text" id="test-topic" value="미녹시딜 효과와 부작용" style="background: #000; color: #0f0; border: 2px solid #0f0; padding: 10px; width: 400px;">
+    <button onclick="testFullIntegration()">전체 테스트</button>
+    <div id="step4" class="output">대기 중...</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let cachedPdf = null;
+        let cachedText = null;
+
+        async function testPdfAccess() {
+            const output = document.getElementById('step1');
+            output.innerHTML = '<span class="info">테스트 중...</span>';
+            
+            try {
+                const response = await fetch('/book.pdf');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    output.innerHTML = `<span class="success">✅ 성공!</span>
+Status: ${response.status}
+Size: ${blob.size} bytes (${(blob.size / 1024).toFixed(2)} KB)
+Type: ${blob.type}`;
+                } else {
+                    output.innerHTML = `<span class="error">❌ 실패!</span>
+Status: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ 오류!</span>
+${error.message}`;
+            }
+        }
+
+        async function testPdfExtraction() {
+            const output = document.getElementById('step2');
+            output.innerHTML = '<span class="info">PDF 로드 중...</span>';
+            
+            try {
+                const loadingTask = pdfjsLib.getDocument('/book.pdf');
+                const pdf = await loadingTask.promise;
+                cachedPdf = pdf;
+                
+                output.innerHTML = `<span class="info">총 ${pdf.numPages} 페이지 텍스트 추출 중...</span>`;
+                
+                let fullText = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += `[페이지 ${i}]\\n${pageText}\\n\\n`;
+                }
+                
+                cachedText = fullText;
+                
+                output.innerHTML = `<span class="success">✅ 추출 완료!</span>
+총 페이지: ${pdf.numPages}
+전체 텍스트 길이: ${fullText.length} 자
+
+첫 1000자 미리보기:
+━━━━━━━━━━━━━━━━━━━━━━
+${fullText.substring(0, 1000)}
+━━━━━━━━━━━━━━━━━━━━━━`;
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ 오류!</span>
+${error.message}
+${error.stack}`;
+            }
+        }
+
+        async function testKeywordSearch() {
+            const output = document.getElementById('step3');
+            const keyword = document.getElementById('search-keyword').value;
+            
+            if (!cachedText) {
+                output.innerHTML = '<span class="warning">⚠️ 먼저 Step 2를 실행하세요!</span>';
+                return;
+            }
+            
+            output.innerHTML = `<span class="info">키워드 "${keyword}" 검색 중...</span>`;
+            
+            const lines = cachedText.split('\\n');
+            const matches = [];
+            
+            lines.forEach((line, index) => {
+                if (line.toLowerCase().includes(keyword.toLowerCase())) {
+                    matches.push({ line: index + 1, text: line });
+                }
+            });
+            
+            if (matches.length > 0) {
+                output.innerHTML = `<span class="success">✅ ${matches.length}개 매칭 발견!</span>
+
+매칭된 라인들 (최대 20개):
+━━━━━━━━━━━━━━━━━━━━━━
+${matches.slice(0, 20).map(m => `라인 ${m.line}: ${m.text.substring(0, 200)}`).join('\\n\\n')}`;
+            } else {
+                output.innerHTML = `<span class="warning">⚠️ 키워드 "${keyword}"를 찾을 수 없습니다.</span>`;
+            }
+        }
+
+        async function testFullIntegration() {
+            const output = document.getElementById('step4');
+            const topic = document.getElementById('test-topic').value;
+            
+            output.innerHTML = '<span class="info">통합 테스트 시작...</span>';
+            
+            try {
+                // 1. 키워드 감지
+                const hairLossKeywords = ['탈모', '모발', '두피', '헤어', '미녹시딜', '피나스테리드'];
+                const isHairLoss = hairLossKeywords.some(k => topic.toLowerCase().includes(k.toLowerCase()));
+                
+                let log = `<span class="info">주제: ${topic}</span>\\n`;
+                log += `<span class="${isHairLoss ? 'success' : 'warning'}">탈모 관련: ${isHairLoss ? '✅ YES' : '❌ NO'}</span>\\n\\n`;
+                
+                if (!isHairLoss) {
+                    output.innerHTML = log + '<span class="warning">탈모 관련 주제가 아닙니다.</span>';
+                    return;
+                }
+                
+                // 2. 키워드 추출
+                const stopWords = ['의', '가', '이', '은', '는', '을', '를', '에', '와', '과', '로', '으로'];
+                const words = topic.split(/[\\s,]+/).filter(w => w.length >= 2 && !stopWords.includes(w));
+                const allKeywords = [...new Set([...words, '탈모', '모발', '두피', '치료', '약물', '효과', '부작용'])];
+                
+                log += `<span class="info">추출 키워드: ${allKeywords.join(', ')}</span>\\n\\n`;
+                
+                // 3. PDF 로드 및 검색
+                log += '<span class="info">PDF 로드 중...</span>\\n';
+                output.innerHTML = log;
+                
+                const loadingTask = pdfjsLib.getDocument('/book.pdf');
+                const pdf = await loadingTask.promise;
+                
+                log += `<span class="success">✅ PDF 로드 완료! (${pdf.numPages} 페이지)</span>\\n\\n`;
+                
+                const relevantPages = [];
+                
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    
+                    let score = 0;
+                    for (const keyword of allKeywords) {
+                        const regex = new RegExp(keyword, 'gi');
+                        const matches = pageText.match(regex);
+                        if (matches) score += matches.length;
+                    }
+                    
+                    if (score > 0) {
+                        relevantPages.push({ pageNum, text: pageText, score });
+                        log += `<span class="success">페이지 ${pageNum}: 점수 ${score}</span>\\n`;
+                        output.innerHTML = log;
+                    }
+                }
+                
+                relevantPages.sort((a, b) => b.score - a.score);
+                
+                log += `\\n<span class="success">✅ 검색 완료! ${relevantPages.length}개 페이지 발견</span>\\n\\n`;
+                
+                if (relevantPages.length > 0) {
+                    let combinedText = '';
+                    const pageNumbers = [];
+                    
+                    for (const item of relevantPages.slice(0, 5)) {
+                        combinedText += `[페이지 ${item.pageNum}]\\n${item.text}\\n\\n`;
+                        pageNumbers.push(item.pageNum);
+                    }
+                    
+                    log += `<span class="info">추출 텍스트 길이: ${combinedText.length}자</span>\\n`;
+                    log += `<span class="info">참조 페이지: ${pageNumbers.join(', ')}</span>\\n\\n`;
+                    log += `<span class="success">━━━━━━━━━━━━━━━━━━━━━━</span>\\n`;
+                    log += `<span class="success">내용 미리보기 (첫 1000자):</span>\\n`;
+                    log += `<span class="info">${combinedText.substring(0, 1000)}</span>\\n`;
+                    log += `<span class="success">━━━━━━━━━━━━━━━━━━━━━━</span>\\n`;
+                } else {
+                    log += '<span class="warning">⚠️ 관련 페이지를 찾지 못했습니다.</span>\\n';
+                }
+                
+                output.innerHTML = log;
+                
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ 오류 발생!</span>\\n${error.message}\\n\\n${error.stack}`;
+            }
+        }
+    </script>
+</body>
+</html>
+

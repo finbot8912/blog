@@ -1327,12 +1327,15 @@ function App() {
                   />
                   {/* 탈모 관련 주제 감지 알림 */}
                   {topic && isHairLossRelated(topic) && (
-                    <div className="mt-2 p-3 bg-blue-900/30 border border-blue-500/50 rounded-md flex items-start space-x-2">
-                      <span className="text-blue-400 text-lg">📚</span>
+                    <div className="mt-2 p-3 bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-500/60 rounded-md flex items-start space-x-2 animate-pulse">
+                      <span className="text-blue-400 text-xl">🩺</span>
                       <div className="flex-1">
-                        <p className="text-sm text-blue-200 font-medium">탈모 전문 자료 감지됨</p>
-                        <p className="text-xs text-blue-300/80 mt-1">
-                          이 주제는 book.pdf의 전문 의학 자료를 우선적으로 참고하여 작성됩니다.
+                        <p className="text-sm text-blue-200 font-bold">✅ 탈모 전문 자료 감지됨</p>
+                        <p className="text-xs text-blue-300/90 mt-1">
+                          노윤우 박사의 book.pdf 전문 의학 자료를 우선 참조하여 신뢰성 있는 콘텐츠를 생성합니다.
+                        </p>
+                        <p className="text-xs text-green-400 mt-1">
+                          💡 자동으로 출처와 참조 페이지가 표기됩니다.
                         </p>
                       </div>
                     </div>

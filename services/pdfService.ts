@@ -63,14 +63,23 @@ export const isHairLossRelated = (topic: string): boolean => {
  */
 export const searchRelevantContent = async (pdfPath: string, topic: string): Promise<{ content: string; pageNumbers: number[] }> => {
   try {
+    console.log(`[PDF 검색 시작] 주제: "${topic}"`);
+    
     // 주제에서 핵심 키워드 추출
     const keywords = extractKeywords(topic);
+    console.log(`[키워드 추출] ${keywords.join(', ')}`);
+    
+    // 탈모 관련 일반 키워드도 추가 (검색 범위 확대)
+    const additionalKeywords = ['탈모', '모발', '두피', '치료', '약물', '효과', '부작용'];
+    const allKeywords = [...new Set([...keywords, ...additionalKeywords])];
+    console.log(`[확장 키워드] ${allKeywords.join(', ')}`);
     
     // PDF 로드
     const loadingTask = pdfjsLib.getDocument(pdfPath);
     const pdf = await loadingTask.promise;
+    console.log(`[PDF 로드 완료] 총 ${pdf.numPages} 페이지`);
     
-    const relevantContent: Array<{ text: string; pageNum: number }> = [];
+    const relevantContent: Array<{ text: string; pageNum: number; score: number }> = [];
     
     // 모든 페이지를 검색
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -80,35 +89,67 @@ export const searchRelevantContent = async (pdfPath: string, topic: string): Pro
         .map((item: any) => item.str)
         .join(' ');
       
-      // 키워드 매칭 확인
-      const matchCount = keywords.filter(keyword => 
-        pageText.toLowerCase().includes(keyword.toLowerCase())
-      ).length;
+      // 키워드 매칭 점수 계산 (더 많은 키워드가 매칭될수록 높은 점수)
+      let score = 0;
+      for (const keyword of allKeywords) {
+        const regex = new RegExp(keyword, 'gi');
+        const matches = pageText.match(regex);
+        if (matches) {
+          score += matches.length;
+        }
+      }
       
-      if (matchCount > 0) {
-        relevantContent.push({ text: pageText, pageNum });
+      if (score > 0) {
+        relevantContent.push({ text: pageText, pageNum, score });
+        console.log(`[페이지 ${pageNum}] 매칭 점수: ${score}`);
       }
     }
     
-    // 관련 내용 결합 (최대 2000자)
+    // 점수 순으로 정렬 (관련성이 높은 순)
+    relevantContent.sort((a, b) => b.score - a.score);
+    
+    console.log(`[검색 완료] 관련 페이지 ${relevantContent.length}개 발견`);
+    
+    // 상위 페이지들의 내용 결합 (최대 3000자로 증가)
     let combinedText = '';
     const pageNumbers = new Set<number>();
+    const maxLength = 3000;
     
     for (const item of relevantContent) {
-      if (combinedText.length < 2000) {
-        combinedText += item.text + '\n\n';
+      if (combinedText.length < maxLength) {
+        // 페이지 구분을 명확하게
+        combinedText += `[페이지 ${item.pageNum}]\n${item.text}\n\n`;
         pageNumbers.add(item.pageNum);
       } else {
         break;
       }
     }
     
-    return {
-      content: combinedText.substring(0, 2000),
+    // 최소한의 내용이 없으면 전체 PDF에서 일부 추출
+    if (combinedText.length < 500 && relevantContent.length === 0) {
+      console.log('[경고] 관련 내용을 찾지 못했습니다. 전체 PDF에서 샘플 추출합니다.');
+      // 처음 3페이지 정도 추출
+      for (let pageNum = 1; pageNum <= Math.min(3, pdf.numPages); pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        combinedText += `[페이지 ${pageNum}]\n${pageText.substring(0, 800)}\n\n`;
+        pageNumbers.add(pageNum);
+      }
+    }
+    
+    const result = {
+      content: combinedText.substring(0, maxLength),
       pageNumbers: Array.from(pageNumbers).sort((a, b) => a - b)
     };
+    
+    console.log(`[최종 결과] 텍스트 길이: ${result.content.length}자, 참조 페이지: ${result.pageNumbers.join(', ')}`);
+    
+    return result;
   } catch (error) {
-    console.error('PDF 내용 검색 에러:', error);
+    console.error('[PDF 검색 오류]', error);
     return { content: '', pageNumbers: [] };
   }
 };
