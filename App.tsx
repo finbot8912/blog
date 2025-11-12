@@ -1327,15 +1327,20 @@ function App() {
                   />
                   {/* 탈모 관련 주제 감지 알림 */}
                   {topic && isHairLossRelated(topic) && (
-                    <div className="mt-2 p-3 bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-500/60 rounded-md flex items-start space-x-2 animate-pulse">
-                      <span className="text-blue-400 text-xl">🩺</span>
+                    <div className="mt-2 p-4 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-500/70 rounded-lg flex items-start space-x-3 shadow-lg">
+                      <span className="text-blue-400 text-2xl">🏥</span>
                       <div className="flex-1">
-                        <p className="text-sm text-blue-200 font-bold">✅ 탈모 전문 자료 감지됨</p>
-                        <p className="text-xs text-blue-300/90 mt-1">
-                          노윤우 박사의 book.pdf 전문 의학 자료를 우선 참조하여 신뢰성 있는 콘텐츠를 생성합니다.
+                        <p className="text-base text-blue-100 font-bold mb-1">✅ 탈모 전문 의료 자료 우선 참조</p>
+                        <p className="text-xs text-blue-200/90 leading-relaxed mb-1.5">
+                          <strong>맥스웰클리닉 강남점 대표원장 노윤우</strong>의 book.pdf 전문 의학 자료를 우선적으로 검색하여 신뢰성 있는 콘텐츠를 생성합니다.
                         </p>
-                        <p className="text-xs text-green-400 mt-1">
-                          💡 자동으로 출처와 참조 페이지가 표기됩니다.
+                        <div className="flex items-center space-x-4 text-xs mt-2">
+                          <span className="text-green-400">📚 자동 출처 표기</span>
+                          <span className="text-green-400">📄 참고 페이지 링크</span>
+                          <span className="text-green-400">🔗 원문 보러가기</span>
+                        </div>
+                        <p className="text-xs text-yellow-300/80 mt-2 bg-yellow-900/20 px-2 py-1 rounded">
+                          ⚠️ PDF 내용이 충분하지 않으면 생성이 중단됩니다
                         </p>
                       </div>
                     </div>
