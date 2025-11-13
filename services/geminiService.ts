@@ -435,48 +435,54 @@ export const generateImage = async (prompt: string, aspectRatio: '16:9' | '1:1' 
 };
 
 
-export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string): Promise<GeneratedContent> => {
+export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string, shouldUsePdfReference: boolean = false): Promise<GeneratedContent> => {
   try {
-    // ✅ 모든 주제에 대해 book.pdf에서 관련 정보를 우선적으로 검색
+    // ✅ 체크박스가 활성화된 경우에만 book.pdf 검색
     let pdfContext: string | null = null;
     let pdfPageNumbers: number[] = [];
 
-    console.log('=== PDF 참조 프로세스 시작 ===');
-    console.log('주제:', topic);
-    console.log('📚 book.pdf에서 관련 정보를 검색합니다...');
-    console.log('PDF 경로: /book.pdf');
+    if (shouldUsePdfReference) {
+      console.log('=== PDF 참조 프로세스 시작 ===');
+      console.log('주제:', topic);
+      console.log('📚 book.pdf에서 관련 정보를 검색합니다...');
+      console.log('PDF 경로: /book.pdf');
 
-    try {
-      const searchResult = await searchRelevantContent('/book.pdf', topic);
-      pdfContext = searchResult.content;
-      pdfPageNumbers = searchResult.pageNumbers;
+      try {
+        const searchResult = await searchRelevantContent('/book.pdf', topic);
+        pdfContext = searchResult.content;
+        pdfPageNumbers = searchResult.pageNumbers;
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('✅ PDF 검색 완료!');
-      console.log('📄 추출된 텍스트 길이:', pdfContext.length, '자');
-      console.log('📑 참조 페이지:', pdfPageNumbers.join(', '));
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ PDF 검색 완료!');
+        console.log('📄 추출된 텍스트 길이:', pdfContext.length, '자');
+        console.log('📑 참조 페이지:', pdfPageNumbers.join(', '));
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-      // ✅ PDF 내용이 조금이라도 있으면 무조건 사용 (조건 완화)
-      if (pdfContext && pdfContext.trim().length > 0) {
-        console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
-        console.log('📝 내용 미리보기:', pdfContext.substring(0, 300) + '...');
-        console.log('🎯 출처: 맥스웰클리닉 강남점 대표원장 노윤우');
-        console.log('📋 페이지 번호:', pdfPageNumbers.join(', '));
-      } else {
-        console.warn('⚠️ 주제와 관련된 PDF 내용을 찾지 못했습니다. 일반 지식으로 생성합니다.');
-        // PDF 내용이 없어도 계속 진행 (출처 표기는 하지 않음)
+        // ✅ PDF 내용이 조금이라도 있으면 무조건 사용 (조건 완화)
+        if (pdfContext && pdfContext.trim().length > 0) {
+          console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
+          console.log('📝 내용 미리보기:', pdfContext.substring(0, 300) + '...');
+          console.log('🎯 출처: 맥스웰클리닉 강남점 대표원장 노윤우');
+          console.log('📋 페이지 번호:', pdfPageNumbers.join(', '));
+        } else {
+          console.warn('⚠️ 주제와 관련된 PDF 내용을 찾지 못했습니다. 일반 지식으로 생성합니다.');
+          // PDF 내용이 없어도 계속 진행 (출처 표기는 하지 않음)
+          pdfContext = null;
+          pdfPageNumbers = [];
+        }
+
+      } catch (pdfError) {
+        console.error('❌ PDF 처리 중 오류 발생:', pdfError);
+        console.error('오류 상세:', pdfError instanceof Error ? pdfError.message : String(pdfError));
+        console.warn('⚠️ PDF 참조 없이 일반 프로세스로 진행합니다.');
+        // PDF 오류 발생 시에도 일반 프로세스로 계속 진행
         pdfContext = null;
         pdfPageNumbers = [];
       }
-
-    } catch (pdfError) {
-      console.error('❌ PDF 처리 중 오류 발생:', pdfError);
-      console.error('오류 상세:', pdfError instanceof Error ? pdfError.message : String(pdfError));
-      console.warn('⚠️ PDF 참조 없이 일반 프로세스로 진행합니다.');
-      // PDF 오류 발생 시에도 일반 프로세스로 계속 진행
-      pdfContext = null;
-      pdfPageNumbers = [];
+    } else {
+      console.log('=== PDF 참조 비활성화 ===');
+      console.log('📝 일반 AI 지식으로 블로그를 생성합니다.');
+      console.log('체크박스를 활성화하면 맥스웰클리닉 전문 의료 자료를 참조할 수 있습니다.');
     }
     
     // 프롬프트 생성
@@ -584,10 +590,21 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
 
   } catch (error) {
     console.error("Error generating blog post:", error);
-    if (error instanceof Error) {
-        throw new Error(`Failed to generate content: ${error.message}`);
+    
+    // 에러 객체의 전체 내용을 로깅
+    if (error && typeof error === 'object') {
+      console.error('Error details:', JSON.stringify(error, null, 2));
     }
-    throw new Error("An unknown error occurred while generating the blog post.");
+    
+    if (error instanceof Error) {
+        // 더 자세한 에러 메시지 제공
+        const errorMessage = error.message || 'Unknown error';
+        const errorStack = error.stack || 'No stack trace';
+        console.error('Error message:', errorMessage);
+        console.error('Error stack:', errorStack);
+        throw new Error(`콘텐츠 생성 실패: ${errorMessage}`);
+    }
+    throw new Error("알 수 없는 오류가 발생했습니다. 콘솔 로그를 확인해주세요.");
   }
 };
 

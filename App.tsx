@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { COLOR_THEMES, EEAT_CATEGORIES_DATA, EVERGREEN_SUBCATEGORIES } from './constants';
 import { ColorTheme, GeneratedContent } from './types';
 import { generateBlogPost, generateEeatTopicSuggestions, generateCategoryTopicSuggestions, generateEvergreenTopicSuggestions, suggestInteractiveElementForTopic, generateImage, generateTopicsFromMemo, generateLongtailTopicSuggestions, regenerateBlogPostHtml } from './services/geminiService';
-import { isHairLossRelated } from './services/pdfService';
 import { CurrentStatus } from './components/CurrentStatus';
 import { Shortcuts } from './components/Shortcuts';
 
@@ -615,7 +614,7 @@ function App() {
     "쇼핑/소비 (온라인쇼핑, 중고거래, 할인혜택, 가성비제품 등)",
     "자동차/교통 (자동차보험, 중고차, 대중교통, 주차 등)",
     "취업/직장 (이직, 연차, 퇴사, 직장생활, 4대보험 등)",
-    "기타(사용자입력)"
+    "탈모 (원인, 치료약물, 계절, 스트레스, 임신, 유전)"
   ];
   const [selectedGenCategory, setSelectedGenCategory] = useState<string>(GENERAL_CATEGORIES[0]);
   const [customGenCategory, setCustomGenCategory] = useState<string>('');
@@ -688,6 +687,9 @@ function App() {
   const [thumbnailColor, setThumbnailColor] = useState<string>('#FFFFFF');
   const [thumbnailFontSize, setThumbnailFontSize] = useState<number>(100);
   const [thumbnailOutlineWidth, setThumbnailOutlineWidth] = useState<number>(8);
+  
+  // PDF 참조 사용 여부 상태
+  const [shouldUsePdfReference, setShouldUsePdfReference] = useState<boolean>(false);
 
   useEffect(() => {
     // Reset subcategory when main E-E-A-T category changes
@@ -837,7 +839,7 @@ function App() {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
       }).format(currentDate);
 
-      const content = await generateBlogPost(topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, finalInteractiveElementIdea, finalRawContent, additionalRequest, thumbnailAspectRatio, formattedDate);
+      const content = await generateBlogPost(topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, finalInteractiveElementIdea, finalRawContent, additionalRequest, thumbnailAspectRatio, formattedDate, shouldUsePdfReference);
       setGeneratedContent(content);
     } catch (err) {
       if (err instanceof Error) {
@@ -848,7 +850,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, interactiveElementIdea, shouldIncludeInteractiveElement, activeSuggestionTab, memoContent, additionalRequest, thumbnailAspectRatio]);
+  }, [topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, interactiveElementIdea, shouldIncludeInteractiveElement, activeSuggestionTab, memoContent, additionalRequest, thumbnailAspectRatio, shouldUsePdfReference]);
 
   const handleGenerateImage = async () => {
     if (!generatedContent?.supplementaryInfo.imagePrompt) return;
@@ -1197,15 +1199,9 @@ function App() {
                             {GENERAL_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                           </select>
                         </div>
-                        {selectedGenCategory === '기타(사용자입력)' && (
-                          <div>
-                            <label htmlFor="custom-gen-category" className="block text-sm font-medium text-gray-300 mb-2">사용자 입력</label>
-                            <input type="text" id="custom-gen-category" value={customGenCategory} onChange={(e) => setCustomGenCategory(e.target.value)} placeholder="관심 카테고리를 입력하세요" className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                          </div>
-                        )}
                         <SuggestionButton 
-                          onClick={() => handleSuggestTopics((currentDate) => generateCategoryTopicSuggestions(selectedGenCategory === '기타(사용자입력)' ? customGenCategory : selectedGenCategory, currentDate))}
-                          disabled={isSuggestingTopics || (selectedGenCategory === '기타(사용자입력)' && !customGenCategory.trim())}
+                          onClick={() => handleSuggestTopics((currentDate) => generateCategoryTopicSuggestions(selectedGenCategory, currentDate))}
+                          disabled={isSuggestingTopics}
                           text="카테고리별 주제 추천받기"
                         />
                       </div>
@@ -1317,6 +1313,22 @@ function App() {
                 {/* Blog Topic Input */}
                 <div>
                   <label htmlFor="blog-topic" className="block text-sm font-medium text-gray-300 mb-2">블로그 주제</label>
+                  
+                  {/* PDF 참조 체크박스 */}
+                  <div className="flex items-center mb-3 bg-gray-900/50 p-3 rounded-lg border border-gray-700">
+                    <input
+                      type="checkbox"
+                      id="use-pdf-reference"
+                      checked={shouldUsePdfReference}
+                      onChange={(e) => setShouldUsePdfReference(e.target.checked)}
+                      className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                    />
+                    <label htmlFor="use-pdf-reference" className="ml-3 text-sm font-medium text-gray-300 cursor-pointer flex items-center">
+                      <span className="text-blue-400 mr-2">📚</span>
+                      맥스웰클리닉 전문 의료 자료(book.pdf) 우선 참조
+                    </label>
+                  </div>
+                  
                   <input
                     type="text"
                     id="blog-topic"
@@ -1325,8 +1337,9 @@ function App() {
                     placeholder="예: 2024년 최고의 AI 생산성 도구 5가지"
                     className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  {/* 탈모 관련 주제 감지 알림 */}
-                  {topic && isHairLossRelated(topic) && (
+                  
+                  {/* PDF 참조 활성화 시 안내 메시지 */}
+                  {shouldUsePdfReference && topic && (
                     <div className="mt-2 p-4 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-500/70 rounded-lg flex items-start space-x-3 shadow-lg">
                       <span className="text-blue-400 text-2xl">🏥</span>
                       <div className="flex-1">
@@ -1340,7 +1353,7 @@ function App() {
                           <span className="text-green-400">🔗 원문 보러가기</span>
                         </div>
                         <p className="text-xs text-yellow-300/80 mt-2 bg-yellow-900/20 px-2 py-1 rounded">
-                          ⚠️ PDF 내용이 충분하지 않으면 생성이 중단됩니다
+                          ℹ️ 주제와 관련된 내용이 PDF에 없으면 일반 AI 지식으로 생성됩니다
                         </p>
                       </div>
                     </div>
