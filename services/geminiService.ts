@@ -96,7 +96,7 @@ const regenerationResponseSchema = {
     required: ["blogPostHtml"]
 };
 
-const getPrompt = (topic: string, theme: ColorTheme, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, currentDate: string, pdfContext: string | null = null, pdfPageNumbers: number[] = []): string => {
+const getPrompt = (topic: string, theme: ColorTheme, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, currentDate: string, pdfContext: string | null = null, pdfPageNumbers: number[] = [], imageAnalysis: string | null = null): string => {
   const themeColors = JSON.stringify(theme.colors);
   const currentYear = new Date().getFullYear();
   
@@ -147,6 +147,61 @@ ${additionalRequest}
 ---
     `;
     }
+
+  let imageAnalysisInstructions = '';
+  if (imageAnalysis) {
+    imageAnalysisInstructions = `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔴🔴🔴 **절대 필수 - 업로드된 이미지 활용** 🔴🔴🔴
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### **최우선 작성 규칙**: 업로드된 이미지 기반 콘텐츠 작성
+
+사용자가 이미지를 업로드했습니다. 아래 분석 결과를 **100% 활용**하여 블로그를 작성해야 합니다.
+
+**🚨 필수 준수 사항 🚨**:
+
+1. **이미지 내용 우선순위**:
+   - 업로드된 이미지의 내용이 **콘텐츠의 핵심**입니다
+   - 이미지에 표시된 텍스트, 수치, 데이터를 **정확히 그대로** 사용하세요
+   - 이미지와 다른 정보를 임의로 추가하지 마세요
+
+2. **각 이미지 활용 방법**:
+   - **대표 이미지**: 블로그의 전체 주제를 대표하는 이미지입니다
+   - **서브 이미지 #1, #2, #3**: 본문 내용을 보완하는 이미지들입니다
+   - 각 이미지는 이미 블로그에 자동 배치되므로, HTML에 별도 이미지 태그를 추가하지 마세요
+
+3. **이미지 내용 반영**:
+   - 이미지에서 확인된 **제품명, 브랜드명, 모델명**을 정확히 언급하세요
+   - 이미지 속 **텍스트를 그대로 인용**하여 설명하세요
+   - **차트나 그래프의 수치**를 구체적으로 설명하세요
+   - 이미지의 **시각적 특징**(색상, 디자인, 구성)을 자연스럽게 언급하세요
+
+4. **콘텐츠 작성 지침**:
+   - 이미지의 내용을 바탕으로 **스토리를 전개**하세요
+   - "위 이미지에서 볼 수 있듯이...", "사진에서 확인할 수 있는..." 등의 표현 사용
+   - 이미지 간의 **연관성과 흐름**을 고려하여 본문 구성
+   - 이미지에 없는 내용은 **일반적인 배경 정보**로만 제공
+
+5. **금지사항**:
+   - ❌ 이미지에 없는 제품이나 정보를 임의로 추가하지 마세요
+   - ❌ 이미지의 내용을 무시하고 일반론만 작성하지 마세요
+   - ❌ 이미지 속 텍스트나 수치를 잘못 읽거나 변경하지 마세요
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📸 **업로드된 이미지 분석 결과** 📸
+(이 내용을 반드시 읽고 블로그에 반영하세요)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${imageAnalysis}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+위 이미지 분석 결과를 우선적으로 활용하여 블로그를 작성하세요!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    `;
+  }
 
   let pdfReferenceInstructions = '';
   // ✅ PDF 내용이 조금이라도 있으면 무조건 포함 (길이 조건 완화)
@@ -312,6 +367,7 @@ ${pdfContext}
 
     ### 콘텐츠 작성 지침
     ${pdfReferenceInstructions}
+    ${imageAnalysisInstructions}
     ${contentInstructions}
     ${additionalRequestInstructions}
     - **문체와 톤**: 전문가이면서도 친근하고 자연스러운 대화체 ("~이에요", "~해요")를 사용하세요. 1인칭 시점("제 생각엔")과 감정 표현("정말 좋았어요")을 활용하여 인간적인 느낌을 주세요. **중요**: '안녕하세요'와 같은 서두 인사나 불필요한 자기소개는 **절대** 포함하지 말고, 독자의 흥미를 끄는 내용으로 바로 시작해주세요.
@@ -435,7 +491,7 @@ export const generateImage = async (prompt: string, aspectRatio: '16:9' | '1:1' 
 };
 
 
-export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string, shouldUsePdfReference: boolean = false): Promise<GeneratedContent> => {
+export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string, shouldUsePdfReference: boolean = false, uploadedImages: string[] = []): Promise<GeneratedContent> => {
   try {
     // ✅ 체크박스가 활성화된 경우에만 book.pdf 검색
     let pdfContext: string | null = null;
@@ -484,9 +540,85 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
       console.log('📝 일반 AI 지식으로 블로그를 생성합니다.');
       console.log('체크박스를 활성화하면 맥스웰클리닉 전문 의료 자료를 참조할 수 있습니다.');
     }
+    // 이미지 분석 (이미지가 업로드된 경우)
+    let imageAnalysis: string | null = null;
+    if (uploadedImages && uploadedImages.length > 0) {
+      console.log('=== 이미지 분석 프로세스 시작 ===');
+      console.log('업로드된 이미지 개수:', uploadedImages.length);
+      
+      try {
+        // 이미지 분석을 위한 프롬프트
+        const imageRoleDescriptions = [
+          '대표 이미지 (썸네일용)',
+          '본문 서브 이미지 #1',
+          '본문 서브 이미지 #2', 
+          '본문 서브 이미지 #3'
+        ];
+        
+        const imageAnalysisPrompt = `
+당신은 이미지를 분석하는 전문가입니다.
+아래 ${uploadedImages.length}개의 이미지를 자세히 분석하여, 블로그 포스트 작성에 활용할 수 있도록 상세한 설명을 제공해주세요.
+
+**이미지 배치 정보**:
+${uploadedImages.map((_, idx) => `- 이미지 ${idx + 1}: ${imageRoleDescriptions[idx]}`).join('\n')}
+
+**블로그 주제**: "${topic}"
+
+**각 이미지별 분석 항목**:
+${uploadedImages.map((_, idx) => `
+### 이미지 ${idx + 1} (${imageRoleDescriptions[idx]})
+1. 주요 내용: 제품, 사람, 장소, 사물 등
+2. 텍스트/숫자: 이미지 속 모든 텍스트를 정확히 읽어주세요
+3. 데이터: 차트, 그래프, 표의 수치를 포함하여 상세 설명
+4. 시각적 특징: 색상, 디자인, 분위기, 품질
+5. 핵심 메시지: 이 이미지가 전달하고자 하는 내용
+`).join('\n')}
+
+**최종 종합**:
+- 이미지들 간의 연관성과 전체적인 스토리 흐름
+- 블로그 주제("${topic}")와의 관련성
+- 블로그 작성 시 각 이미지를 어떻게 활용하면 좋을지 제안
+
+위 형식에 맞춰 상세하고 구조화된 분석 결과를 제공해주세요.
+`;
+
+        // 이미지를 Gemini API에 전달하기 위한 형식으로 변환
+        const imageParts = uploadedImages.map(dataUrl => {
+          // data:image/jpeg;base64,... 형식에서 base64 부분만 추출
+          const base64Data = dataUrl.split(',')[1];
+          const mimeType = dataUrl.split(';')[0].split(':')[1];
+          
+          return {
+            inlineData: {
+              mimeType: mimeType,
+              data: base64Data
+            }
+          };
+        });
+
+        const analysisResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [
+            { role: "user", parts: [{ text: imageAnalysisPrompt }] },
+            { role: "user", parts: imageParts }
+          ],
+        });
+
+        imageAnalysis = analysisResponse.text;
+        
+        console.log('✅ 이미지 분석 완료!');
+        console.log('분석 결과 길이:', imageAnalysis.length, '자');
+        console.log('분석 미리보기:', imageAnalysis.substring(0, 200) + '...');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      } catch (imageError) {
+        console.error('❌ 이미지 분석 중 오류 발생:', imageError);
+        console.warn('⚠️ 이미지 분석 없이 일반 프로세스로 진행합니다.');
+        imageAnalysis = null;
+      }
+    }
     
     // 프롬프트 생성
-    const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers);
+    const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers, imageAnalysis);
 
     // 프롬프트에 PDF 내용이 포함되었는지 확인
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -558,13 +690,29 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
     }
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
+    // 이미지 처리: 업로드된 이미지가 있으면 우선 사용, 없으면 AI 생성
     let imageBase64: string | null = null;
-    if (shouldGenerateImage) {
+    if (uploadedImages && uploadedImages.length > 0) {
+        // 첫 번째 업로드 이미지를 대표 이미지로 사용
+        console.log('✅ 업로드된 이미지를 대표 이미지로 사용합니다.');
+        imageBase64 = uploadedImages[0].split(',')[1]; // data:image/...;base64, 이후 부분만 추출
+    } else if (shouldGenerateImage) {
+        console.log('🎨 AI로 대표 이미지를 생성합니다.');
         imageBase64 = await generateImage(parsedJson.supplementaryInfo.imagePrompt, aspectRatio);
     }
     
     let subImages: { prompt: string; altText: string; base64: string | null }[] | null = null;
-    if (parsedJson.supplementaryInfo.subImagePrompts && parsedJson.supplementaryInfo.subImagePrompts.length > 0) {
+    if (uploadedImages && uploadedImages.length > 1) {
+        // 업로드된 이미지의 2~4번째를 서브 이미지로 사용
+        console.log(`✅ 업로드된 ${uploadedImages.length - 1}개 이미지를 서브 이미지로 사용합니다.`);
+        subImages = uploadedImages.slice(1, 4).map((dataUrl, index) => ({
+            prompt: parsedJson.supplementaryInfo.subImagePrompts?.[index]?.prompt || `User uploaded sub-image ${index + 1}`,
+            altText: parsedJson.supplementaryInfo.subImagePrompts?.[index]?.altText || `서브 이미지 ${index + 1}`,
+            base64: dataUrl.split(',')[1] // data:image/...;base64, 이후 부분만 추출
+        }));
+    } else if (parsedJson.supplementaryInfo.subImagePrompts && parsedJson.supplementaryInfo.subImagePrompts.length > 0) {
+        // 업로드된 이미지가 없으면 AI로 생성
+        console.log('🎨 AI로 서브 이미지를 생성합니다.');
         const subImagePromptObjects: { prompt: string; altText: string }[] = parsedJson.supplementaryInfo.subImagePrompts;
         
         const subImageBase64s = shouldGenerateSubImages

@@ -152,5 +152,6 @@ export const EVERGREEN_SUBCATEGORIES: string[] = [
     "교육/학습",
     "취업/커리어",
     "여행",
-    "취미"
+    "취미",
+    "가전제품, 스마트기기"
 ];

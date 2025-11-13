@@ -690,6 +690,11 @@ function App() {
   
   // PDF 참조 사용 여부 상태
   const [shouldUsePdfReference, setShouldUsePdfReference] = useState<boolean>(false);
+  
+  // 이미지 참조 상태
+  const [shouldUseImageReference, setShouldUseImageReference] = useState<boolean>(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedImageNames, setUploadedImageNames] = useState<string[]>([]);
 
   useEffect(() => {
     // Reset subcategory when main E-E-A-T category changes
@@ -710,6 +715,14 @@ function App() {
         setShouldAddThumbnailText(false);
     }
   }, [shouldGenerateImage]);
+
+  // 이미지 참조 체크 해제 시 업로드된 이미지 초기화
+  useEffect(() => {
+    if (!shouldUseImageReference) {
+      setUploadedImages([]);
+      setUploadedImageNames([]);
+    }
+  }, [shouldUseImageReference]);
 
 
   useEffect(() => {
@@ -770,6 +783,85 @@ function App() {
     }
   };
 
+  // 이미지 업로드 핸들러
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // 기존 이미지와 새로운 이미지 합쳐서 4개 제한 체크
+    const totalImages = uploadedImages.length + files.length;
+    if (totalImages > 4) {
+      setError(`최대 4개의 이미지만 업로드할 수 있습니다. (현재: ${uploadedImages.length}개, 추가하려는 이미지: ${files.length}개)`);
+      // input 초기화
+      e.target.value = '';
+      return;
+    }
+
+    const imageDataUrls: string[] = [];
+    const names: string[] = [];
+    let totalSize = 0;
+
+    // 기존 이미지 크기 계산
+    for (const existingImg of uploadedImages) {
+      // base64 문자열 길이로 대략적인 크기 계산 (정확하지 않지만 충분함)
+      totalSize += existingImg.length * 0.75; // base64는 원본의 약 1.33배이므로 역계산
+    }
+
+    // 새 파일 크기 체크
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file) {
+        totalSize += file.size;
+      }
+    }
+
+    if (totalSize > 20 * 1024 * 1024) { // 20MB 제한 (이미지 4개)
+      setError("총 이미지 크기는 20MB를 초과할 수 없습니다.");
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      // 새로운 파일들을 base64로 변환
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file && file.type.startsWith('image/')) {
+          names.push(file.name);
+          
+          // 이미지를 base64로 변환
+          const reader = new FileReader();
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            reader.onload = (event) => {
+              if (event.target?.result) {
+                resolve(event.target.result as string);
+              } else {
+                reject(new Error('Failed to read image'));
+              }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          
+          imageDataUrls.push(dataUrl);
+        }
+      }
+
+      // 기존 이미지에 새 이미지 추가 (최대 4개까지)
+      const updatedImages = [...uploadedImages, ...imageDataUrls].slice(0, 4);
+      const updatedNames = [...uploadedImageNames, ...names].slice(0, 4);
+
+      setUploadedImages(updatedImages);
+      setUploadedImageNames(updatedNames);
+      setError(null);
+      
+      // input 초기화 (같은 파일 다시 선택 가능하도록)
+      e.target.value = '';
+    } catch (err) {
+      setError("이미지를 읽는 중 오류가 발생했습니다.");
+      e.target.value = '';
+    }
+  };
+
   const handleSuggestTopics = useCallback(async (generator: (currentDate: string) => Promise<string[]>) => {
     setIsSuggestingTopics(true);
     setSuggestionError(null);
@@ -826,6 +918,13 @@ function App() {
       setError('블로그 주제를 입력해주세요.');
       return;
     }
+    
+    // 이미지 참조 체크 시 이미지 업로드 필수
+    if (shouldUseImageReference && uploadedImages.length === 0) {
+      setError('이미지 참조를 활성화했습니다. 이미지를 업로드해주세요.');
+      return;
+    }
+    
     setError(null);
     setIsLoading(true);
     setGeneratedContent(null);
@@ -839,7 +938,10 @@ function App() {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
       }).format(currentDate);
 
-      const content = await generateBlogPost(topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, finalInteractiveElementIdea, finalRawContent, additionalRequest, thumbnailAspectRatio, formattedDate, shouldUsePdfReference);
+      // 이미지 참조 사용 시 업로드된 이미지 전달
+      const imagesToSend = shouldUseImageReference ? uploadedImages : [];
+      
+      const content = await generateBlogPost(topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, finalInteractiveElementIdea, finalRawContent, additionalRequest, thumbnailAspectRatio, formattedDate, shouldUsePdfReference, imagesToSend);
       setGeneratedContent(content);
     } catch (err) {
       if (err instanceof Error) {
@@ -850,7 +952,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, interactiveElementIdea, shouldIncludeInteractiveElement, activeSuggestionTab, memoContent, additionalRequest, thumbnailAspectRatio, shouldUsePdfReference]);
+  }, [topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, interactiveElementIdea, shouldIncludeInteractiveElement, activeSuggestionTab, memoContent, additionalRequest, thumbnailAspectRatio, shouldUsePdfReference, shouldUseImageReference, uploadedImages]);
 
   const handleGenerateImage = async () => {
     if (!generatedContent?.supplementaryInfo.imagePrompt) return;
@@ -1510,6 +1612,105 @@ function App() {
                         </div>
                       )}
                     </div>
+                )}
+
+                <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                        <input id="use-image-reference" type="checkbox" checked={shouldUseImageReference} onChange={(e) => setShouldUseImageReference(e.target.checked)} className="focus:ring-blue-500 h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
+                    </div>
+                    <div className="ml-3 text-sm">
+                        <label htmlFor="use-image-reference" className="font-medium text-gray-300">첨부한 이미지 참조</label>
+                        <p className="text-gray-400">업로드한 이미지를 분석하여 관련 블로그 콘텐츠를 생성합니다.</p>
+                    </div>
+                </div>
+                
+                {shouldUseImageReference && (
+                  <div className="pl-8 space-y-3 pt-2 border-t border-gray-700 mt-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <label 
+                          htmlFor="image-upload" 
+                          className={`cursor-pointer text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 inline-flex items-center text-sm ${
+                            uploadedImages.length >= 4 
+                              ? 'bg-gray-600 cursor-not-allowed opacity-50' 
+                              : 'bg-gray-700 hover:bg-gray-600'
+                          }`}
+                        >
+                          <span className="mr-2">🖼️</span>
+                          <span>
+                            {uploadedImages.length >= 4 
+                              ? '이미지 가득참 (4/4)' 
+                              : `이미지 추가 (${uploadedImages.length}/4)`
+                            }
+                          </span>
+                        </label>
+                        <input 
+                          id="image-upload" 
+                          type="file" 
+                          multiple 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleImageUpload}
+                          disabled={uploadedImages.length >= 4}
+                        />
+                      </div>
+                      {uploadedImages.length > 0 && (
+                        <button
+                          onClick={() => {
+                            setUploadedImages([]);
+                            setUploadedImageNames([]);
+                          }}
+                          className="text-xs bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 transition-colors"
+                        >
+                          전체 삭제
+                        </button>
+                      )}
+                    </div>
+                    
+                    {uploadedImages.length > 0 && (
+                      <div className="grid grid-cols-2 gap-3">
+                        {uploadedImages.map((imgUrl, index) => {
+                          const getImageLabel = (idx: number) => {
+                            if (idx === 0) return '🎯 대표 이미지';
+                            return `📷 서브 이미지 #${idx}`;
+                          };
+                          
+                          return (
+                            <div key={index} className="relative group">
+                              <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded-md z-10 font-bold">
+                                {getImageLabel(index)}
+                              </div>
+                              <img 
+                                src={imgUrl} 
+                                alt={uploadedImageNames[index]} 
+                                className="w-full h-24 object-cover rounded-md border-2 border-gray-600"
+                              />
+                              <button
+                                onClick={() => {
+                                  setUploadedImages(prev => prev.filter((_, i) => i !== index));
+                                  setUploadedImageNames(prev => prev.filter((_, i) => i !== index));
+                                }}
+                                className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity font-bold"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    <div className="bg-blue-900/30 border border-blue-600/50 rounded-md p-3 text-xs text-blue-200">
+                      <p className="font-bold mb-1">📌 이미지 배치 안내:</p>
+                      <ul className="list-disc list-inside space-y-1 ml-2">
+                        <li><strong>1번째 이미지</strong> → 대표 이미지 (썸네일)</li>
+                        <li><strong>2번째 이미지</strong> → 본문 서브 이미지 #1</li>
+                        <li><strong>3번째 이미지</strong> → 본문 서브 이미지 #2</li>
+                        <li><strong>4번째 이미지</strong> → 본문 서브 이미지 #3</li>
+                      </ul>
+                      <p className="mt-2 text-gray-400">💡 최대 20MB, 순서대로 자동 배치됩니다</p>
+                    </div>
+                  </div>
                 )}
 
                 <div className="flex items-start">
