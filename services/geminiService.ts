@@ -96,7 +96,7 @@ const regenerationResponseSchema = {
     required: ["blogPostHtml"]
 };
 
-const getPrompt = (topic: string, theme: ColorTheme, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, currentDate: string, pdfContext: string | null = null, pdfPageNumbers: number[] = [], imageAnalysis: string | null = null): string => {
+const getPrompt = (topic: string, theme: ColorTheme, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, currentDate: string, pdfContext: string | null = null, pdfPageNumbers: number[] = [], imageAnalysis: string | null = null, shouldIncludeAppDownload: boolean = false): string => {
   const themeColors = JSON.stringify(theme.colors);
   const currentYear = new Date().getFullYear();
   
@@ -212,9 +212,9 @@ ${imageAnalysis}
 🔴🔴🔴 **절대 필수 - 반드시 읽고 따라야 합니다** 🔴🔴🔴
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### **최우선 작성 규칙**: 맥스웰클리닉 강남점 대표원장 노윤우의 의학 자료 기반 작성
+### **최우선 작성 규칙**: MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습 자료
 
-당신은 지금부터 아래에 제공된 **맥스웰클리닉 강남점 대표원장 노윤우의 전문 의학 자료**를 기반으로 블로그를 작성해야 합니다.
+당신은 지금부터 아래에 제공된 **MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습 자료**를 기반으로 블로그를 작성해야 합니다.
 
 **🚨 필수 준수 사항 🚨**:
 
@@ -256,7 +256,7 @@ ${imageAnalysis}
    - ❌ 자료의 내용을 무시하고 일반 지식만으로 작성하지 마세요
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📚 **맥스웰클리닉 강남점 대표원장 노윤우의 전문 의학 자료** 📚
+📚 **MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습 자료** 📚
 (이 내용을 반드시 읽고 블로그에 반영하세요)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -282,8 +282,7 @@ ${pdfContext}
 <div style="margin-top: 40px; padding: 20px; background-color: ${theme.colors.infoBoxBg}; border-left: 4px solid ${theme.colors.infoBoxBorder}; border-radius: 0 8px 8px 0;">
   <p style="margin: 0; font-size: 14px; color: ${theme.colors.text}; line-height: 1.6;">
     <strong>📚 참고 자료</strong><br>
-    출처: 맥스웰클리닉 강남점 대표원장 노윤우<br>
-    ${pdfPageNumbers.length > 0 ? `참고 페이지: ${pdfPageNumbers.map(pageNum => `<a href="/pdf-viewer.html?page=${pageNum}" target="_blank" style="color: #3b82f6; text-decoration: none; margin: 0 3px; font-weight: 600; border-bottom: 1px solid #3b82f6; transition: all 0.2s;">${pageNum}p</a>`).join(', ')} | <a href="/pdf-viewer.html" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 700; border-bottom: 2px solid #10b981; margin-left: 8px;">원문 보러가기 →</a>` : '참고 페이지: 해당 자료 참조'}
+    [출처] MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습
   </p>
 </div>
 \`\`\`
@@ -291,17 +290,43 @@ ${pdfContext}
 **🚨 준수사항 (위반 시 응답 무효)**:
 1. ✅ 위 HTML 코드를 **한 글자도 수정하지 말고** 그대로 복사하여 포함
 2. ✅ FAQ 섹션과 마무리 인사 사이에 정확히 위치
-3. ✅ 출처: "맥스웰클리닉 강남점 대표원장 노윤우" 문구 필수
-4. ✅ 페이지 번호는 클릭 가능한 링크 (파란색 #3b82f6)
-5. ✅ "원문 보러가기 →" 링크 포함 (녹색 #10b981)
+3. ✅ 출처: "[출처] MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습" 문구 필수
 
 **검증 체크리스트** - 생성 후 반드시 확인:
 - [ ] 출처 표기 HTML이 블로그 끝부분에 포함되어 있는가?
-- [ ] "맥스웰클리닉 강남점 대표원장 노윤우" 문구가 있는가?
-- [ ] 페이지 번호 링크가 있는가?
-- [ ] "원문 보러가기" 링크가 있는가?
+- [ ] "[출처] MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습" 문구가 있는가?
     `;
   }
+
+  // 앱 다운로드 링크 추가 지시문 (체크박스 활성화 시)
+  const appDownloadInstructions = shouldIncludeAppDownload ? `
+
+### **🔴🔴🔴 절대 필수 - 앱 다운로드 링크 추가 🔴🔴🔴**
+
+블로그 포스트의 **맨 마지막 (출처 표기 다음)**에 **반드시** 아래 HTML 코드를 **한 글자도 수정하지 말고 정확히 그대로** 포함해야 합니다:
+
+\`\`\`html
+<div style="margin-top: 40px; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+  <h3 style="margin: 0 0 15px 0; font-size: 20px; color: #ffffff; font-weight: bold; text-align: center;">📱 AI 기반 탈모 진단 APP 다운로드</h3>
+  <div style="background-color: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;">
+    <p style="margin: 0 0 12px 0; font-size: 15px; color: #333333; line-height: 1.8;">
+      <strong style="color: #667eea;">🍎 App Store (iPhone용)</strong><br>
+      <a href="https://apps.apple.com/kr/app/%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5-%EA%B8%B0%EB%B0%98-%ED%83%88%EB%AA%A8-%EC%9E%90%EA%B0%80%EC%A7%84%EB%8B%A8-app/id6748598716" style="color: #667eea; text-decoration: none; word-break: break-all;" target="_blank">다운로드 링크</a>
+    </p>
+    <p style="margin: 0; font-size: 15px; color: #333333; line-height: 1.8;">
+      <strong style="color: #764ba2;">🤖 Google Play</strong><br>
+      <a href="https://play.google.com/store/apps/details?id=com.swing2app.v3.d67ecd69532c842aaa4b72a76832adc39" style="color: #764ba2; text-decoration: none; word-break: break-all;" target="_blank">다운로드 링크</a>
+    </p>
+  </div>
+</div>
+\`\`\`
+
+**🚨 준수사항**:
+1. ✅ 위 HTML 코드를 **한 글자도 수정하지 말고** 그대로 복사하여 포함
+2. ✅ 블로그 맨 마지막 (출처 표기 바로 다음)에 위치
+3. ✅ 링크가 정확히 표시되어야 함
+
+  ` : '';
 
   const subImageInstructions = `
     - **서브 이미지**: **반드시** 본문 내용의 흐름상 적절한 위치 2~3곳에 \`<!--SUB_IMAGE_PLACEHOLDER_1-->\`, \`<!--SUB_IMAGE_PLACEHOLDER_2-->\` 와 같은 HTML 주석을 삽입해주세요. 이 주석들은 서브 이미지가 들어갈 자리를 표시하며, 숫자는 순서대로 증가해야 합니다. 각 플레이스홀더에 대해, 이미지를 생성할 상세한 영문 프롬프트와 SEO 및 접근성을 위한 간결하고 설명적인 한국어 alt 텍스트를 모두 생성하여 \`subImagePrompts\` 배열에 객체 형태로 순서대로 담아주세요.
@@ -367,6 +392,7 @@ ${pdfContext}
 
     ### 콘텐츠 작성 지침
     ${pdfReferenceInstructions}
+    ${appDownloadInstructions}
     ${imageAnalysisInstructions}
     ${contentInstructions}
     ${additionalRequestInstructions}
@@ -389,7 +415,7 @@ ${pdfContext}
 🔴 CRITICAL REQUIREMENT - READ THIS FIRST 🔴
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-You have been provided with EXPERT MEDICAL REFERENCE MATERIAL from Dr. Noh Yun-woo (맥스웰클리닉 강남점 대표원장 노윤우).
+You have been provided with EXPERT MEDICAL REFERENCE MATERIAL from MedGemma-based Maxwell Clinic Clinical Data Learning.
 
 THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
 
@@ -399,16 +425,14 @@ THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
 3. You MUST include BLUE QUOTATION BOXES (minimum 3-5) highlighting content from the PDF material
    - Use this format: <div style="background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px;">💊 전문 자료: [content]</div>
 4. You MUST include the citation box IMMEDIATELY AFTER the FAQ section (see detailed instructions below)
-5. The citation box MUST include: "출처: 맥스웰클리닉 강남점 대표원장 노윤우" and clickable page links + "원문 보러가기" link
+5. The citation box MUST include: "[출처] MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습"
 6. If you generate content WITHOUT blue quotation boxes or WITHOUT the citation box, your response is 100% INVALID and will be REJECTED
 
 **VERIFICATION CHECKLIST - CHECK BEFORE SUBMITTING**:
 - [ ] You used information from the reference material
 - [ ] You included 3-5 blue quotation boxes with PDF content
 - [ ] You included the citation box IMMEDIATELY AFTER FAQ section
-- [ ] The citation box has "출처: 맥스웰클리닉 강남점 대표원장 노윤우"
-- [ ] The citation box has clickable page number links
-- [ ] The citation box has "원문 보러가기 →" link
+- [ ] The citation box has "[출처] MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습"
 
 ⛔ DO NOT PROCEED if any checkbox is unchecked. Your response will be REJECTED.
 `
@@ -424,6 +448,7 @@ THIS REFERENCE MATERIAL IS YOUR PRIMARY SOURCE - NOT YOUR GENERAL KNOWLEDGE.
 
     Follow these comprehensive instructions for structure, content, and tone:
     ${pdfReferenceInstructions}
+    ${appDownloadInstructions}
     ${instructions}
 
     The final output must be a single, valid JSON object that strictly adheres to the provided response schema. The HTML code MUST be formatted for human readability. DO NOT minify the HTML. It is critical that you use proper indentation and newlines for every block-level element (\`<div>\`, \`<h2>\`, \`<p>\`, \`<ul>\`, \`<li>\`, etc.) to ensure the source code is clean and easy for a developer to read. Make sure to include the \`<!--IMAGE_PLACEHOLDER-->\` comment, which indicates where the main image will be programmatically inserted.
@@ -491,7 +516,7 @@ export const generateImage = async (prompt: string, aspectRatio: '16:9' | '1:1' 
 };
 
 
-export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string, shouldUsePdfReference: boolean = false, uploadedImages: string[] = []): Promise<GeneratedContent> => {
+export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldGenerateImage: boolean, shouldGenerateSubImages: boolean, interactiveElementIdea: string | null, rawContent: string | null, additionalRequest: string | null, aspectRatio: '16:9' | '1:1', currentDate: string, shouldUsePdfReference: boolean = false, uploadedImages: string[] = [], shouldIncludeAppDownload: boolean = false): Promise<GeneratedContent> => {
   try {
     // ✅ 체크박스가 활성화된 경우에만 book.pdf 검색
     let pdfContext: string | null = null;
@@ -518,7 +543,7 @@ export const generateBlogPost = async (topic: string, theme: ColorTheme, shouldG
         if (pdfContext && pdfContext.trim().length > 0) {
           console.log('✅ PDF 컨텍스트가 AI에 전달됩니다.');
           console.log('📝 내용 미리보기:', pdfContext.substring(0, 300) + '...');
-          console.log('🎯 출처: 맥스웰클리닉 강남점 대표원장 노윤우');
+          console.log('🎯 출처: [출처] MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습');
           console.log('📋 페이지 번호:', pdfPageNumbers.join(', '));
         } else {
           console.warn('⚠️ 주제와 관련된 PDF 내용을 찾지 못했습니다. 일반 지식으로 생성합니다.');
@@ -618,7 +643,7 @@ ${uploadedImages.map((_, idx) => `
     }
     
     // 프롬프트 생성
-    const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers, imageAnalysis);
+    const prompt = getPrompt(topic, theme, interactiveElementIdea, rawContent, additionalRequest, currentDate, pdfContext, pdfPageNumbers, imageAnalysis, shouldIncludeAppDownload);
 
     // 프롬프트에 PDF 내용이 포함되었는지 확인
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -673,15 +698,11 @@ ${uploadedImages.map((_, idx) => `
     console.log('🔍 AI 생성 결과 검증:');
     console.log('블로그 HTML 길이:', parsedJson.blogPostHtml.length, '자');
 
-    const hasSource = parsedJson.blogPostHtml.includes('맥스웰클리닉 강남점 대표원장 노윤우');
+    const hasSource = parsedJson.blogPostHtml.includes('MedGemma를 활용한 맥스웰클리닉 임상 데이터 기반 학습');
     const hasReference = parsedJson.blogPostHtml.includes('참고 자료');
-    const hasPdfLink = parsedJson.blogPostHtml.includes('pdf-viewer.html');
-    const hasOriginalLink = parsedJson.blogPostHtml.includes('원문 보러가기');
 
     console.log('출처 표기 포함:', hasSource ? '✅ YES' : '❌ NO');
     console.log('참고 자료 섹션:', hasReference ? '✅ YES' : '❌ NO');
-    console.log('PDF 링크 포함:', hasPdfLink ? '✅ YES' : '❌ NO');
-    console.log('원문 보러가기 링크:', hasOriginalLink ? '✅ YES' : '❌ NO');
 
     if (!hasSource && pdfContext) {
       console.error('🚨 경고: PDF 컨텍스트가 있었지만 AI가 출처를 포함하지 않았습니다!');
@@ -726,12 +747,32 @@ ${uploadedImages.map((_, idx) => `
         }));
     }
 
+    // 앱 다운로드 링크 추가 (체크박스가 활성화된 경우)
+    const appDownloadText = `
+
+📱 AI 기반 탈모 진단 APP 다운로드
+
+🍎 App Store (iPhone용)
+👉 https://apps.apple.com/kr/app/인공지능-기반-탈모-자가진단-app/id6748598716
+
+🤖 Google Play
+👉 https://play.google.com/store/apps/details?id=com.swing2app.v3.d67ecd69532c842aaa4b72a76832adc39`;
+
+    const finalSocialMediaPosts = shouldIncludeAppDownload
+      ? {
+          threads: parsedJson.socialMediaPosts.threads + appDownloadText,
+          instagram: parsedJson.socialMediaPosts.instagram + appDownloadText,
+          facebook: parsedJson.socialMediaPosts.facebook + appDownloadText,
+          x: parsedJson.socialMediaPosts.x + appDownloadText,
+        }
+      : parsedJson.socialMediaPosts;
+
     const finalContent: GeneratedContent = {
         blogPostHtml: parsedJson.blogPostHtml,
         supplementaryInfo: parsedJson.supplementaryInfo,
         imageBase64: imageBase64,
         subImages: subImages,
-        socialMediaPosts: parsedJson.socialMediaPosts,
+        socialMediaPosts: finalSocialMediaPosts,
     };
 
     return finalContent;

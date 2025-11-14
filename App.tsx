@@ -677,6 +677,9 @@ function App() {
   const [interactiveElementIdea, setInteractiveElementIdea] = useState<string | null>(null);
   const [isSuggestingInteractiveElement, setIsSuggestingInteractiveElement] = useState<boolean>(false);
   
+  // --- AI 탈모 진단 APP 다운로드 링크 State ---
+  const [shouldIncludeAppDownload, setShouldIncludeAppDownload] = useState<boolean>(false);
+  
   // --- Thumbnail Generation State ---
   const [shouldAddThumbnailText, setShouldAddThumbnailText] = useState<boolean>(false);
   const [thumbnailText, setThumbnailText] = useState<string>('');
@@ -941,7 +944,7 @@ function App() {
       // 이미지 참조 사용 시 업로드된 이미지 전달
       const imagesToSend = shouldUseImageReference ? uploadedImages : [];
       
-      const content = await generateBlogPost(topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, finalInteractiveElementIdea, finalRawContent, additionalRequest, thumbnailAspectRatio, formattedDate, shouldUsePdfReference, imagesToSend);
+      const content = await generateBlogPost(topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, finalInteractiveElementIdea, finalRawContent, additionalRequest, thumbnailAspectRatio, formattedDate, shouldUsePdfReference, imagesToSend, shouldIncludeAppDownload);
       setGeneratedContent(content);
     } catch (err) {
       if (err instanceof Error) {
@@ -952,7 +955,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, interactiveElementIdea, shouldIncludeInteractiveElement, activeSuggestionTab, memoContent, additionalRequest, thumbnailAspectRatio, shouldUsePdfReference, shouldUseImageReference, uploadedImages]);
+  }, [topic, selectedTheme, shouldGenerateImage, shouldGenerateSubImages, interactiveElementIdea, shouldIncludeInteractiveElement, activeSuggestionTab, memoContent, additionalRequest, thumbnailAspectRatio, shouldUsePdfReference, shouldUseImageReference, uploadedImages, shouldIncludeAppDownload]);
 
   const handleGenerateImage = async () => {
     if (!generatedContent?.supplementaryInfo.imagePrompt) return;
@@ -1732,6 +1735,16 @@ function App() {
                         </div>
                     </div>
                 )}
+
+                <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                        <input id="include-app-download" type="checkbox" checked={shouldIncludeAppDownload} onChange={(e) => setShouldIncludeAppDownload(e.target.checked)} className="focus:ring-blue-500 h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
+                    </div>
+                    <div className="ml-3 text-sm">
+                        <label htmlFor="include-app-download" className="font-medium text-gray-300">AI 기반 탈모 진단 APP 다운로드 사이트</label>
+                        <p className="text-gray-400">블로그, 인스타, 페이스북 글 마지막에 앱 다운로드 링크를 추가합니다.</p>
+                    </div>
+                </div>
               </div>
             </div>
             <div className="mt-6">
