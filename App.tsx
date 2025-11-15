@@ -747,6 +747,7 @@ function App() {
     "쇼핑/소비 (온라인쇼핑, 중고거래, 할인혜택, 가성비제품 등)",
     "자동차/교통 (자동차보험, 중고차, 대중교통, 주차 등)",
     "취업/직장 (이직, 연차, 퇴사, 직장생활, 4대보험 등)",
+    "스포츠 (야구, 축구, 농구, 배구, 배드민턴 등)",
     "탈모 (원인, 치료약물, 계절, 스트레스, 임신, 유전)"
   ];
   const [selectedGenCategory, setSelectedGenCategory] = useState<string>(GENERAL_CATEGORIES[0]);

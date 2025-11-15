@@ -10,6 +10,8 @@ const ALLOWED_USERS = [
   { id: 'gh01', password: '!@2204!@' },
   { id: 'mg01', password: '!@2204!@' },
   { id: 'samsung01', password: '!@2204!@' },
+  { id: 'hjs01', password: '!@3730!@' },
+  { id: 'hjs02', password: '!@3730!@' },
 ];
 
 export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
