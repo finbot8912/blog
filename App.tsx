@@ -8,45 +8,45 @@ import { Login } from './components/Login';
 import { recordLogin, recordLogout } from './services/usageLogger';
 
 const Header: React.FC<{ onOpenHelp: () => void; currentUser: string; onLogout: () => void; }> = ({ onOpenHelp, currentUser, onLogout }) => (
-  <header className="relative text-center p-6 border-b border-gray-700">
-    <h1 className="text-4xl font-bold text-white tracking-tight">
+  <header className="relative text-center p-8 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/90 via-gray-900/90 to-gray-800/90 backdrop-blur-xl shadow-2xl">
+    <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight drop-shadow-lg">
       MedAlo Blog 생성 가이즈
     </h1>
-    <p className="text-gray-400 mt-2">AI와 함께 아이디어 발굴부터 SEO 최적화 포스팅까지, 블로깅의 모든 것을 한 곳에서 해결하세요.</p>
+    <p className="text-gray-300 mt-3 text-base font-medium">AI와 함께 아이디어 발굴부터 SEO 최적화 포스팅까지, 블로깅의 모든 것을 한 곳에서 해결하세요.</p>
     <div className="absolute top-1/2 left-6 -translate-y-1/2">
-      <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-gray-600">
-        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        <span className="text-sm text-gray-300">{currentUser}</span>
+      <div className="flex items-center gap-3 bg-gradient-to-r from-gray-700/80 to-gray-800/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-green-500/30 shadow-lg hover:shadow-green-500/20 hover:scale-105 transition-all duration-300">
+        <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
+        <span className="text-sm font-semibold text-gray-100">{currentUser}</span>
       </div>
     </div>
-    <div className="absolute top-1/2 right-6 -translate-y-1/2 flex items-center space-x-2">
+    <div className="absolute top-1/2 right-6 -translate-y-1/2 flex items-center space-x-3">
       <a
         href="/dashboard.html"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-gray-400 hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-gray-700"
+        className="text-gray-300 hover:text-blue-400 transition-all duration-300 p-2.5 rounded-full hover:bg-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 hover:scale-110 backdrop-blur-sm bg-gray-700/30"
         aria-label="대시보드"
         title="사용 현황 대시보드"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
       </a>
       <button
         onClick={onOpenHelp}
-        className="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-gray-700"
+        className="text-gray-300 hover:text-purple-400 transition-all duration-300 p-2.5 rounded-full hover:bg-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 hover:scale-110 backdrop-blur-sm bg-gray-700/30"
         aria-label="사용법 보기"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
       </button>
       <button
         onClick={onLogout}
-        className="text-gray-400 hover:text-red-400 transition-colors p-2 rounded-full hover:bg-gray-700"
+        className="text-gray-300 hover:text-red-400 transition-all duration-300 p-2.5 rounded-full hover:bg-red-500/20 hover:shadow-lg hover:shadow-red-500/30 hover:scale-110 backdrop-blur-sm bg-gray-700/30"
         aria-label="로그아웃"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg>
       </button>
@@ -55,8 +55,8 @@ const Header: React.FC<{ onOpenHelp: () => void; currentUser: string; onLogout: 
 );
 
 const Footer: React.FC = () => (
-  <footer className="text-center p-6 mt-8 border-t border-gray-700 text-gray-500 text-sm">
-    <p>Made by MedAlo</p>
+  <footer className="text-center p-8 mt-12 border-t border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-lg">
+    <p className="text-gray-400 text-sm font-medium">Made by <span className="text-blue-400 font-bold">MedAlo</span></p>
   </footer>
 );
 
@@ -71,9 +71,9 @@ const CopyToClipboardButton: React.FC<{ textToCopy: string }> = ({ textToCopy })
   };
 
   return (
-    <button onClick={handleCopy} className="flex items-center space-x-1 text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50" disabled={copied}>
-      {copied ? <span className="text-green-400">✅</span> : <span>📋</span>}
-      <span>{copied ? '복사됨!' : '복사'}</span>
+    <button onClick={handleCopy} className="flex items-center space-x-2 text-xs bg-gradient-to-r from-gray-700/80 to-gray-600/80 backdrop-blur-sm text-gray-200 px-3 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 hover:scale-110 transition-all duration-300 disabled:opacity-50 shadow-md hover:shadow-lg hover:shadow-blue-500/30" disabled={copied}>
+      {copied ? <span className="text-green-400 text-base">✅</span> : <span className="text-base">📋</span>}
+      <span className="font-medium">{copied ? '복사됨!' : '복사'}</span>
     </button>
   );
 };
@@ -132,7 +132,7 @@ const InteractiveCodeModal: React.FC<{ code: string; onClose: () => void; }> = (
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-700/50 max-w-3xl w-full max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-gray-700 flex justify-between items-center">
           <h2 className="text-lg font-bold text-white">인터랙티브 요소 코드</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl font-light">&times;</button>
@@ -351,10 +351,10 @@ const ResultDisplay: React.FC<{
         <div className="md:col-span-2 bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="flex justify-between items-center p-3 bg-gray-800 border-b border-gray-700">
             <div className="flex space-x-1 items-center">
-              <button onClick={() => setViewMode('preview')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
+              <button onClick={() => setViewMode('preview')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-700/80 text-gray-300 hover:bg-gray-600/90 hover:scale-105 transition-all duration-300'}`}>
                 <span role="img" aria-label="preview" className="mr-1">👀</span>미리보기
               </button>
-              <button onClick={() => setViewMode('html')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'html' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
+              <button onClick={() => setViewMode('html')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'html' ? 'bg-blue-600 text-white' : 'bg-gray-700/80 text-gray-300 hover:bg-gray-600/90 hover:scale-105 transition-all duration-300'}`}>
                 <span role="img" aria-label="code" className="mr-1">💻</span>HTML
               </button>
                <div className="text-xs text-gray-400 ml-4 border-l border-gray-700 pl-4">
@@ -389,7 +389,7 @@ const ResultDisplay: React.FC<{
         {/* Right Column Wrapper */}
         <div className="flex flex-col gap-6">
           {supplementaryInfo && (
-            <div className="bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col space-y-6">
+            <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 p-4 flex flex-col space-y-6">
               
               {/* Image Section */}
               <div>
@@ -517,7 +517,7 @@ const ResultDisplay: React.FC<{
             </div>
           )}
           {socialMediaPosts && (
-            <div className="bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col space-y-6">
+            <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 p-4 flex flex-col space-y-6">
               <h2 className="text-xl font-semibold text-white mb-2 border-b border-gray-700 pb-2">소셜 미디어 포스트</h2>
               <SocialMediaPostCard platform="Threads" content={socialMediaPosts.threads} icon="🧵" />
               <SocialMediaPostCard platform="Instagram" content={socialMediaPosts.instagram} icon="📸" />
@@ -1330,25 +1330,25 @@ function App() {
       }
   };
   
-  const mainTabButtonStyle = (tabName: MainTab) => 
-    `px-6 py-3 text-lg font-bold transition-colors duration-300 rounded-t-lg focus:outline-none ${
+  const mainTabButtonStyle = (tabName: MainTab) =>
+    `px-8 py-4 text-lg font-bold transition-all duration-300 rounded-t-xl focus:outline-none relative overflow-hidden ${
       mainTab === tabName
-      ? 'bg-gray-800 text-white'
-      : 'bg-gray-700 text-gray-400 hover:bg-gray-700/70 hover:text-white'
+      ? 'bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/50 scale-105'
+      : 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/70 hover:text-white hover:scale-102 backdrop-blur-sm'
     }`;
   
-  const suggestionTabButtonStyle = (tabName: TopicSuggestionTab) => 
-    `px-4 py-2 text-base font-semibold border-b-2 transition-colors duration-200 focus:outline-none ${
+  const suggestionTabButtonStyle = (tabName: TopicSuggestionTab) =>
+    `px-5 py-2.5 text-base font-semibold border-b-3 transition-all duration-300 focus:outline-none ${
       activeSuggestionTab === tabName
-      ? 'border-blue-500 text-blue-400'
-      : 'border-transparent text-gray-400 hover:text-white'
+      ? 'border-blue-500 text-blue-400 bg-blue-500/10 shadow-lg shadow-blue-500/20'
+      : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-700/30'
     }`;
   
   const SuggestionButton: React.FC<{ onClick: () => void, disabled: boolean, text: string }> = ({ onClick, disabled, text }) => (
      <button
         onClick={onClick}
         disabled={disabled}
-        className="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 transition-all duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center"
+        className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl hover:shadow-purple-500/50 hover:scale-105 disabled:hover:scale-100 disabled:shadow-none"
       >
         {disabled ? (
           <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -1391,7 +1391,7 @@ function App() {
             )}
           </div>
           
-          <div className="bg-gray-800 p-6 rounded-b-lg shadow-2xl mb-8">
+          <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-8 rounded-b-2xl shadow-2xl hover:shadow-blue-500/10 mb-8 border border-gray-700/50">
             {mainTab === 'generator' && (
               <div>
                 {/* --- Topic Suggestion Section --- */}
@@ -1416,14 +1416,14 @@ function App() {
                             <div>
                                 <label htmlFor="eeat-category" className="block text-sm font-medium text-gray-300 mb-2">콘텐츠 유형 선택</label>
                                 <select id="eeat-category" value={selectedEeatCategory} onChange={(e) => setSelectedEeatCategory(e.target.value)}
-                                  className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer">
                                   {EEAT_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
                              <div>
                                 <label htmlFor="eeat-subcategory" className="block text-sm font-medium text-gray-300 mb-2">세부 분야 선택</label>
                                 <select id="eeat-subcategory" value={selectedEeatSubCategory} onChange={(e) => setSelectedEeatSubCategory(e.target.value)}
-                                  className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer">
                                   {EEAT_CATEGORIES_DATA[selectedEeatCategory].map(subcat => <option key={subcat} value={subcat}>{subcat}</option>)}
                                 </select>
                             </div>
@@ -1440,7 +1440,7 @@ function App() {
                         <p className="text-gray-400 text-sm">선택한 카테고리 내에서 독자의 흥미를 끌고 소셜 미디어 공유를 유도할 만한 최신 트렌드 및 인기 주제를 추천받으세요. 광범위한 독자층을 대상으로 하는 매력적인 콘텐츠 아이디어를 얻을 수 있습니다.</p>
                         <div>
                           <label htmlFor="gen-category" className="block text-sm font-medium text-gray-300 mb-2">카테고리 선택</label>
-                          <select id="gen-category" value={selectedGenCategory} onChange={(e) => setSelectedGenCategory(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                          <select id="gen-category" value={selectedGenCategory} onChange={(e) => setSelectedGenCategory(e.target.value)} className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer">
                             {GENERAL_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                           </select>
                         </div>
@@ -1458,13 +1458,13 @@ function App() {
                          <div className="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="evergreen-category" className="block text-sm font-medium text-gray-300 mb-2">콘텐츠 형식 선택</label>
-                                <select id="evergreen-category" value={selectedEvergreenCategory} onChange={(e) => setSelectedEvergreenCategory(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <select id="evergreen-category" value={selectedEvergreenCategory} onChange={(e) => setSelectedEvergreenCategory(e.target.value)} className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer">
                                     {EVERGREEN_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
                             <div>
                                 <label htmlFor="evergreen-subcategory" className="block text-sm font-medium text-gray-300 mb-2">주제 분야 선택</label>
-                                <select id="evergreen-subcategory" value={selectedEvergreenSubCategory} onChange={(e) => setSelectedEvergreenSubCategory(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <select id="evergreen-subcategory" value={selectedEvergreenSubCategory} onChange={(e) => setSelectedEvergreenSubCategory(e.target.value)} className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer">
                                     {EVERGREEN_SUBCATEGORIES.map(subcat => <option key={subcat} value={subcat}>{subcat}</option>)}
                                 </select>
                             </div>
@@ -1482,7 +1482,7 @@ function App() {
                           <p className="text-gray-400 text-sm">실시간 구글 검색을 활용하여, 검색량은 적지만 명확한 목적을 가진 사용자를 타겟으로 하는 '롱테일 키워드' 주제를 추천받으세요. 경쟁이 낮아 상위 노출에 유리하며, 구매나 특정 행동으로 이어질 확률이 높은 잠재고객을 유치하는 데 효과적입니다.</p>
                           <div>
                               <label htmlFor="longtail-category" className="block text-sm font-medium text-gray-300 mb-2">콘텐츠 유형 선택</label>
-                              <select id="longtail-category" value={selectedLongtailCategory} onChange={(e) => setSelectedLongtailCategory(e.target.value)} className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                              <select id="longtail-category" value={selectedLongtailCategory} onChange={(e) => setSelectedLongtailCategory(e.target.value)} className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer">
                                   {LONGTAIL_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                               </select>
                           </div>
@@ -1499,7 +1499,7 @@ function App() {
                         <p className="text-gray-400 text-sm">가지고 있는 아이디어 메모, 초안, 강의 노트, 관련 자료 파일 등을 기반으로 블로그 주제를 추천받으세요. AI가 핵심 내용을 분석하여 가장 매력적이고 발전 가능성이 높은 포스트 제목을 제안해 드립니다.</p>
                         <div>
                           <label htmlFor="memo-content" className="block text-sm font-medium text-gray-300 mb-2">메모/초안 입력</label>
-                          <textarea id="memo-content" value={memoContent} onChange={(e) => setMemoContent(e.target.value)} rows={6} placeholder="여기에 아이디어를 자유롭게 작성하거나 아래 버튼을 통해 파일을 업로드하세요." className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                          <textarea id="memo-content" value={memoContent} onChange={(e) => setMemoContent(e.target.value)} rows={6} placeholder="여기에 아이디어를 자유롭게 작성하거나 아래 버튼을 통해 파일을 업로드하세요." className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner focus:shadow-lg focus:shadow-blue-500/20"></textarea>
                         </div>
                         <div className="flex items-center space-x-2">
                             <label htmlFor="file-upload" className="cursor-pointer bg-gray-700 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition-colors duration-200 inline-flex items-center">
@@ -1548,7 +1548,7 @@ function App() {
           </div>
           
           {/* --- Main Generation Section --- */}
-          <div id="generation-section" className="bg-gray-800 p-6 rounded-lg shadow-2xl mb-6">
+          <div id="generation-section" className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl hover:shadow-purple-500/10 mb-6 border border-gray-700/50">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
               <span role="img" aria-label="magic wand" className="w-6 h-6 mr-2 text-blue-400 text-xl">✨</span>
               포스트 생성하기
@@ -1580,7 +1580,7 @@ function App() {
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     placeholder="예: 2024년 최고의 AI 생산성 도구 5가지"
-                    className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner focus:shadow-lg focus:shadow-blue-500/20"
                   />
                   
                   {/* PDF 참조 활성화 시 안내 메시지 */}
@@ -1612,7 +1612,7 @@ function App() {
                     id="color-theme"
                     value={selectedTheme.name}
                     onChange={(e) => setSelectedTheme(COLOR_THEMES.find(t => t.name === e.target.value) || COLOR_THEMES[0])}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer"
                   >
                     {COLOR_THEMES.map(theme => (
                       <option key={theme.name} value={theme.name}>{theme.name} - {theme.description}</option>
@@ -1676,13 +1676,13 @@ function App() {
                         <button
                             type="button"
                             onClick={() => setThumbnailAspectRatio('16:9')}
-                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${thumbnailAspectRatio === '16:9' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
+                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${thumbnailAspectRatio === '16:9' ? 'bg-blue-600 text-white' : 'bg-gray-700/80 text-gray-300 hover:bg-gray-600/90 hover:scale-105 transition-all duration-300'}`}>
                             16:9 (와이드)
                         </button>
                         <button
                             type="button"
                             onClick={() => setThumbnailAspectRatio('1:1')}
-                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${thumbnailAspectRatio === '1:1' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
+                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${thumbnailAspectRatio === '1:1' ? 'bg-blue-600 text-white' : 'bg-gray-700/80 text-gray-300 hover:bg-gray-600/90 hover:scale-105 transition-all duration-300'}`}>
                             1:1 (정사각형)
                         </button>
                     </div>
@@ -1692,7 +1692,7 @@ function App() {
                     <div className="pl-8 space-y-4 pt-2 border-t border-gray-700 mt-4">
                       <div>
                         <label htmlFor="thumbnail-text" className="block text-sm font-medium text-gray-300 mb-2">썸네일 텍스트</label>
-                        <input type="text" id="thumbnail-text" value={thumbnailText} onChange={(e) => setThumbnailText(e.target.value)} placeholder="글 생성 후 SEO 제목이 자동으로 제안됩니다." className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                        <input type="text" id="thumbnail-text" value={thumbnailText} onChange={(e) => setThumbnailText(e.target.value)} placeholder="글 생성 후 SEO 제목이 자동으로 제안됩니다." className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer" />
                         <p className="text-xs text-gray-500 mt-1.5">/ 를 사용하여 강제로 줄바꿈할 수 있습니다.</p>
                       </div>
 
@@ -1870,7 +1870,7 @@ function App() {
                     <div className="pl-8">
                         <label htmlFor="interactive-idea" className="block text-sm font-medium text-gray-300 mb-2">요소 아이디어</label>
                         <div className="relative">
-                            <input type="text" id="interactive-idea" value={interactiveElementIdea || ''} onChange={(e) => setInteractiveElementIdea(e.target.value)} placeholder={isSuggestingInteractiveElement ? "AI가 아이디어를 제안 중..." : "자동 제안 또는 직접 입력"} className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            <input type="text" id="interactive-idea" value={interactiveElementIdea || ''} onChange={(e) => setInteractiveElementIdea(e.target.value)} placeholder={isSuggestingInteractiveElement ? "AI가 아이디어를 제안 중..." : "자동 제안 또는 직접 입력"} className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer" />
                             {isSuggestingInteractiveElement && <div className="absolute inset-y-0 right-0 flex items-center pr-3"><svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></div>}
                         </div>
                     </div>
@@ -1891,7 +1891,7 @@ function App() {
               <button
                 onClick={handleGenerate}
                 disabled={isLoading || !topic}
-                className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center text-lg"
+                className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:via-blue-600 hover:to-cyan-600 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed flex items-center justify-center text-lg shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-105 disabled:hover:scale-100 disabled:shadow-none"
               >
                 {isLoading ? (
                   <>
@@ -1932,7 +1932,7 @@ function App() {
 
           {/* --- Regeneration Section --- */}
           {!isLoading && generatedContent && (
-            <div className="mt-8 bg-gray-800 p-6 rounded-lg shadow-2xl">
+            <div className="mt-8 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl hover:shadow-blue-500/10 border border-gray-700/50">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                 <span role="img" aria-label="document with pencil" className="w-6 h-6 mr-2 text-green-400 text-xl">📝</span>
                 피드백 및 재작성
@@ -1949,7 +1949,7 @@ function App() {
                   onChange={(e) => setRegenerationFeedback(e.target.value)}
                   rows={4}
                   placeholder="예: 전체적으로 좀 더 전문적인 용어를 사용해주세요. / 3번째 문단의 내용을 더 자세하게 설명해주세요."
-                  className="w-full bg-gray-900 border border-gray-600 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/50 rounded-lg px-5 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-500 transition-all duration-300 shadow-inner cursor-pointer"
                 />
               </div>
               <div className="mt-4">
