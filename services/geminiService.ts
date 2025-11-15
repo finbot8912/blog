@@ -2,13 +2,16 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { ColorTheme, GeneratedContent, SupplementaryInfo } from '../types';
 import { isHairLossRelated, searchRelevantContent } from './pdfService';
 
-const API_KEY = process.env.API_KEY;
+// API 키를 동적으로 설정 가능하도록 변경
+let API_KEY = process.env.API_KEY || '';
+let ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null as any;
 
-if (!API_KEY) {
-  throw new Error("API_KEY environment variable is not set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+// API 키를 동적으로 설정하는 함수 (로그인 시 호출)
+export const setApiKey = (apiKey: string) => {
+  API_KEY = apiKey;
+  ai = new GoogleGenAI({ apiKey: API_KEY });
+  console.log('✅ Gemini API 키가 설정되었습니다.');
+};
 
 const responseSchema = {
     type: Type.OBJECT,

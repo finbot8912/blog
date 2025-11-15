@@ -1,17 +1,37 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { COLOR_THEMES, EEAT_CATEGORIES_DATA, EVERGREEN_SUBCATEGORIES } from './constants';
 import { ColorTheme, GeneratedContent } from './types';
-import { generateBlogPost, generateEeatTopicSuggestions, generateCategoryTopicSuggestions, generateEvergreenTopicSuggestions, suggestInteractiveElementForTopic, generateImage, generateTopicsFromMemo, generateLongtailTopicSuggestions, regenerateBlogPostHtml } from './services/geminiService';
+import { generateBlogPost, generateEeatTopicSuggestions, generateCategoryTopicSuggestions, generateEvergreenTopicSuggestions, suggestInteractiveElementForTopic, generateImage, generateTopicsFromMemo, generateLongtailTopicSuggestions, regenerateBlogPostHtml, setApiKey } from './services/geminiService';
 import { CurrentStatus } from './components/CurrentStatus';
 import { Shortcuts } from './components/Shortcuts';
+import { Login } from './components/Login';
+import { recordLogin, recordLogout } from './services/usageLogger';
 
-const Header: React.FC<{ onOpenHelp: () => void; }> = ({ onOpenHelp }) => (
+const Header: React.FC<{ onOpenHelp: () => void; currentUser: string; onLogout: () => void; }> = ({ onOpenHelp, currentUser, onLogout }) => (
   <header className="relative text-center p-6 border-b border-gray-700">
     <h1 className="text-4xl font-bold text-white tracking-tight">
       MedAlo Blog 생성 가이즈
     </h1>
     <p className="text-gray-400 mt-2">AI와 함께 아이디어 발굴부터 SEO 최적화 포스팅까지, 블로깅의 모든 것을 한 곳에서 해결하세요.</p>
+    <div className="absolute top-1/2 left-6 -translate-y-1/2">
+      <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-gray-600">
+        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <span className="text-sm text-gray-300">{currentUser}</span>
+      </div>
+    </div>
     <div className="absolute top-1/2 right-6 -translate-y-1/2 flex items-center space-x-2">
+      <a
+        href="/dashboard.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-400 hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-gray-700"
+        aria-label="대시보드"
+        title="사용 현황 대시보드"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </a>
       <button
         onClick={onOpenHelp}
         className="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-gray-700"
@@ -19,6 +39,15 @@ const Header: React.FC<{ onOpenHelp: () => void; }> = ({ onOpenHelp }) => (
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </button>
+      <button
+        onClick={onLogout}
+        className="text-gray-400 hover:text-red-400 transition-colors p-2 rounded-full hover:bg-gray-700"
+        aria-label="로그아웃"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg>
       </button>
     </div>
@@ -576,6 +605,110 @@ const HelpModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
 
 function App() {
+  // --- 인증 상태 관리 ---
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<string>('');
+
+  // 세션 스토리지에서 로그인 상태 복원
+  useEffect(() => {
+    const savedAuth = sessionStorage.getItem('auth');
+    const savedUser = sessionStorage.getItem('userId');
+    const savedApiKey = sessionStorage.getItem('apiKey');
+    
+    if (savedAuth === 'true' && savedUser && savedApiKey) {
+      setIsAuthenticated(true);
+      setCurrentUser(savedUser);
+      setApiKey(savedApiKey); // API 키 설정
+    }
+  }, []);
+
+  // 로그인 성공 핸들러
+  const handleLoginSuccess = (userId: string, apiKey: string) => {
+    setIsAuthenticated(true);
+    setCurrentUser(userId);
+    setApiKey(apiKey); // API 키 설정
+    
+    // 세션 스토리지에 저장
+    sessionStorage.setItem('auth', 'true');
+    sessionStorage.setItem('userId', userId);
+    sessionStorage.setItem('apiKey', apiKey);
+    
+    // 로그인 기록
+    recordLogin(userId);
+  };
+
+  // 로그아웃 핸들러
+  const handleLogout = useCallback(() => {
+    // 로그아웃 기록
+    recordLogout();
+    
+    setIsAuthenticated(false);
+    setCurrentUser('');
+    
+    // 세션 스토리지 클리어
+    sessionStorage.removeItem('auth');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('apiKey');
+  }, []);
+
+  // 자동 로그아웃 기능 (5분 동안 활동 없으면 로그아웃)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const TIMEOUT_DURATION = 5 * 60 * 1000; // 5분 (밀리초)
+    const WARNING_TIME = 4.5 * 60 * 1000; // 4분 30초 (경고 시점)
+    let timeoutId: NodeJS.Timeout;
+    let warningTimeoutId: NodeJS.Timeout;
+
+    // 타이머 리셋 함수
+    const resetTimeout = () => {
+      // 기존 타이머 제거
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (warningTimeoutId) {
+        clearTimeout(warningTimeoutId);
+      }
+      
+      // 경고 타이머 설정 (4분 30초 후)
+      warningTimeoutId = setTimeout(() => {
+        console.log('⚠️ 30초 후 자동 로그아웃됩니다.');
+        alert('⚠️ 30초 동안 활동이 없으면 자동으로 로그아웃됩니다.');
+      }, WARNING_TIME);
+      
+      // 로그아웃 타이머 설정 (5분 후)
+      timeoutId = setTimeout(() => {
+        console.log('⏰ 5분 동안 활동이 없어 자동 로그아웃됩니다.');
+        alert('🔒 5분 동안 활동이 없어 자동 로그아웃됩니다.');
+        handleLogout();
+      }, TIMEOUT_DURATION);
+    };
+
+    // 사용자 활동 감지 이벤트
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    // 이벤트 리스너 등록
+    events.forEach(event => {
+      document.addEventListener(event, resetTimeout);
+    });
+
+    // 초기 타이머 설정
+    resetTimeout();
+
+    // 클린업: 컴포넌트 언마운트 또는 로그아웃 시 타이머 및 이벤트 제거
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (warningTimeoutId) {
+        clearTimeout(warningTimeoutId);
+      }
+      events.forEach(event => {
+        document.removeEventListener(event, resetTimeout);
+      });
+    };
+  }, [isAuthenticated, handleLogout]);
+
   const [topic, setTopic] = useState<string>('');
   const [selectedTheme, setSelectedTheme] = useState<ColorTheme>(COLOR_THEMES[0]);
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
@@ -1223,10 +1356,15 @@ function App() {
       </button>
   );
 
+  // 로그인되지 않은 경우 로그인 화면 표시
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 font-sans flex flex-col">
       <div className="flex-grow">
-        <Header onOpenHelp={() => setIsHelpModalOpen(true)} />
+        <Header onOpenHelp={() => setIsHelpModalOpen(true)} currentUser={currentUser} onLogout={handleLogout} />
         <main className="container mx-auto p-6">
           <CurrentStatus />
           
@@ -1240,15 +1378,17 @@ function App() {
                 트렌드 바로가기
                 </button>
             </div>
-            <a 
-                href="https://creator-advisor.naver.com/naver_blog" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group flex items-center rounded-md bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 px-4 py-2 text-sm font-bold text-slate-900 shadow-lg transition-transform duration-200 hover:scale-105"
-            >
-                <span className="mr-2 filter drop-shadow">⭐</span>
-                <span>네이버 creator-advisor</span>
-            </a>
+            {currentUser === 'fintech01' && (
+              <a 
+                  href="https://creator-advisor.naver.com/naver_blog" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group flex items-center rounded-md bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 px-4 py-2 text-sm font-bold text-slate-900 shadow-lg transition-transform duration-200 hover:scale-105"
+              >
+                  <span className="mr-2 filter drop-shadow">⭐</span>
+                  <span>네이버 creator-advisor</span>
+              </a>
+            )}
           </div>
           
           <div className="bg-gray-800 p-6 rounded-b-lg shadow-2xl mb-8">
@@ -1403,7 +1543,7 @@ function App() {
             )}
 
             {mainTab === 'shortcuts' && (
-                <Shortcuts />
+                <Shortcuts currentUser={currentUser} />
             )}
           </div>
           
@@ -1837,6 +1977,20 @@ function App() {
       </div>
       <Footer />
       {isHelpModalOpen && <HelpModal onClose={() => setIsHelpModalOpen(false)} />}
+      
+      {/* 우측 하단 플로팅 로그아웃 버튼 */}
+      <button
+        onClick={handleLogout}
+        className="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-2xl transition-all duration-200 transform hover:scale-110 group z-50"
+        aria-label="로그아웃"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white text-sm px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
+          로그아웃
+        </span>
+      </button>
     </div>
   );
 }

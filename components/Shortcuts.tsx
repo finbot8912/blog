@@ -1,6 +1,18 @@
 import React from 'react';
 
-const links = [
+interface ShortcutsProps {
+    currentUser: string;
+}
+
+interface Link {
+    title: string;
+    description: string;
+    url: string;
+    highlight?: boolean;
+    restrictedTo?: string;
+}
+
+const links: Link[] = [
     {
         title: '실시간 인기 검색어 모음',
         description: '구글, 네이트, 줌, 다음',
@@ -16,6 +28,7 @@ const links = [
         description: '(로그인 필요, 트렌드 탭으로 이동)',
         url: 'https://creator-advisor.naver.com/naver_blog',
         highlight: true,
+        restrictedTo: 'fintech01', // fintech01 사용자만 볼 수 있음
     },
     {
         title: '네이버 데이터랩',
@@ -56,8 +69,13 @@ const ExternalLinkIcon = () => (
 );
 
 
-export const Shortcuts: React.FC = () => {
-    const regularLinks = links.filter(link => !link.highlight);
+export const Shortcuts: React.FC<ShortcutsProps> = ({ currentUser }) => {
+    // 사용자 권한에 따라 링크 필터링
+    const regularLinks = links.filter(link => {
+        if (link.highlight) return false; // highlight된 링크는 제외
+        if (link.restrictedTo && link.restrictedTo !== currentUser) return false; // 제한된 링크 필터링
+        return true;
+    });
 
     return (
         <div>
